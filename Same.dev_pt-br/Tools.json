@@ -1,0 +1,401 @@
+[
+  {
+    "description": "Atalho para criar um novo projeto web a partir de um template de framework. Cada um é configurado com TypeScript, Biome e Bun. Escolha o melhor framework para o projeto. Não use esta ferramenta se o framework desejado não estiver listado. Padrão para nextjs-shadcn.",
+    "name": "startup",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "framework": {
+          "description": "O framework a ser usado para o projeto.",
+          "enum": ["html-ts-css", "react-vite", "react-vite-tailwind", "react-vite-shadcn", "nextjs-shadcn", "vue-vite", "vue-vite-tailwind", "shipany"],
+          "type": "string"
+        },
+        "project_name": {
+          "description": "O nome do projeto. Apenas letras minúsculas, números e hífens permitidos.",
+          "type": "string"
+        },
+        "shadcn_theme": {
+          "description": "O tema shadcn a ser usado para o projeto. Escolha zinc a menos que os requisitos do app especifiquem o contrário.",
+          "enum": ["zinc", "blue", "green", "orange", "red", "rose", "violet", "yellow"],
+          "type": "string"
+        }
+      },
+      "required": ["project_name", "framework", "shadcn_theme"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Lança um agente de tarefa altamente capaz no workspace do USUÁRIO. Notas de uso:\n1. Quando o agente terminar, ele retornará um relatório de suas ações. Este relatório também é visível ao USUÁRIO, então você não precisa repetir nenhuma informação sobreposta.\n2. Cada invocação de agente é stateless e não tem acesso ao seu histórico de chat com o USUÁRIO. Você não poderá enviar mensagens adicionais ao agente, nem o agente poderá se comunicar com você fora de seu relatório final. Portanto, seu prompt deve conter uma descrição de tarefa altamente detalhada para o agente executar autonomamente e você deve especificar exatamente qual informação o agente deve retornar a você em sua mensagem final e única a você.\n3. As saídas do agente devem geralmente ser confiáveis.",
+    "name": "task_agent",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "integrations": {
+          "description": "Escolha os serviços externos com os quais o agente deve interagir.",
+          "items": {
+            "enum": [],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "prompt": {
+          "description": "A tarefa para o agente executar.",
+          "type": "string"
+        },
+        "relative_file_paths": {
+          "description": "Caminhos relativos para arquivos relevantes à tarefa.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["prompt", "integrations", "relative_file_paths"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Executa um comando do terminal. Cada comando é executado em um novo shell.\nIMPORTANTE: Não use esta ferramenta para editar arquivos. Use a ferramenta `edit_file` em vez disso.",
+    "name": "bash",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "description": "O comando do terminal a executar.",
+          "type": "string"
+        },
+        "require_user_interaction": {
+          "description": "Se o comando requer que o usuário interaja com o terminal (por exemplo, para instalar dependências), escreva um aviso ao usuário. Uma frase curta única começando com \"Interaja com o terminal para ...\" Caso contrário, escreva \"\".",
+          "type": "string"
+        },
+        "starting_server": {
+          "description": "Se o comando inicia um processo de servidor.",
+          "type": "boolean"
+        }
+      },
+      "required": ["command", "starting_server", "require_user_interaction"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Lista o conteúdo de um diretório. A ferramenta rápida para usar para descoberta, antes de usar ferramentas mais direcionadas como busca semântica ou leitura de arquivo. Útil para tentar entender a estrutura de arquivos antes de mergulhar em arquivos específicos. Pode ser usado para explorar o codebase.",
+    "name": "ls",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "relative_dir_path": {
+          "description": "O caminho relativo para o diretório para listar conteúdo.",
+          "type": "string"
+        }
+      },
+      "required": ["relative_dir_path"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Busca por arquivos usando padrões glob. Suporta padrões como *.ts, **/*.tsx, src/**/*.{js,ts}, etc. Use isso quando precisar encontrar arquivos correspondendo a padrões específicos em vez de correspondência fuzzy.",
+    "name": "glob",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "exclude_pattern": {
+          "description": "Padrão glob opcional para excluir arquivos (ex.: '**/node_modules/**')",
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Padrão glob para corresponder arquivos (ex.: '*.ts', '**/*.tsx', 'src/**/*.{js,ts}')",
+          "type": "string"
+        }
+      },
+      "required": ["pattern", "exclude_pattern"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Busca de texto baseada em regex rápida que encontra correspondências exatas de padrões dentro de arquivos ou diretórios, utilizando o comando ripgrep para busca eficiente. Os resultados serão formatados no estilo do ripgrep e podem ser configurados para incluir números de linha e conteúdo. Para evitar saída excessiva, os resultados são limitados a 50 correspondências. Use os padrões include ou exclude para filtrar o escopo da busca por tipo de arquivo ou caminhos específicos. Isso é melhor para encontrar correspondências exatas de texto ou padrões regex. Mais preciso que busca semântica para encontrar strings ou padrões específicos. Isso é preferido sobre busca semântica quando sabemos o nome exato do símbolo/função/etc. para buscar em algum conjunto de diretórios/tipos de arquivo.",
+    "name": "grep",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "case_sensitive": {
+          "description": "Se a busca deve ser sensível a maiúsculas.",
+          "type": "boolean"
+        },
+        "exclude_pattern": {
+          "description": "Padrão glob para arquivos a excluir (ex.: '.test.ts' para arquivos de teste).",
+          "type": "string"
+        },
+        "include_pattern": {
+          "description": "Padrão glob para arquivos a incluir (ex.: '.ts' para arquivos TypeScript).",
+          "type": "string"
+        },
+        "query": {
+          "description": "O padrão regex para buscar.",
+          "type": "string"
+        }
+      },
+      "required": ["query", "case_sensitive", "include_pattern", "exclude_pattern"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Lê o conteúdo de um arquivo. Para arquivos de texto, a saída será o conteúdo do arquivo indexado em 1 de start_line_one_indexed a end_line_one_indexed_inclusive, junto com um resumo das linhas fora desses intervalos. Nota que pode visualizar no máximo 750 linhas por vez. Para arquivos binários (como imagens), mostrará a imagem.\n\nAo usar esta ferramenta para coletar informação, é sua responsabilidade garantir que você tenha o contexto COMPLETO. Especificamente, cada vez que você chamar este comando deve:\n1) Avaliar se o conteúdo que você visualizou é suficiente para prosseguir com sua tarefa.\n2) Anotar onde há linhas não mostradas.\n3) Se o conteúdo do arquivo que você visualizou for insuficiente, e você suspeitar que pode estar em linhas não mostradas, chame proativamente a ferramenta novamente para visualizar essas linhas.\n4) Quando em dúvida, chame esta ferramenta novamente para coletar mais informação. Lembre-se que visualizações parciais de arquivo podem perder dependências críticas, imports, ou funcionalidade.\n\nEm alguns casos, se ler um intervalo de linhas não for suficiente, você pode escolher ler o arquivo inteiro. Ler arquivos inteiros é frequentemente dispendioso e lento, especialmente para arquivos grandes (ou seja, mais de algumas centenas de linhas). Então você deve usar esta opção com moderação. Ler o arquivo inteiro não é permitido na maioria dos casos. Você só pode ler o arquivo inteiro se ele foi editado ou anexado manualmente à conversa pelo usuário.",
+    "name": "read_file",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "end_line_one_indexed": {
+          "description": "O número de linha indexado em 1 para terminar a leitura (inclusivo).",
+          "type": "number"
+        },
+        "relative_file_path": {
+          "description": "O caminho relativo para o arquivo a ler.",
+          "type": "string"
+        },
+        "should_read_entire_file": {
+          "description": "Se deve ler o arquivo inteiro.",
+          "type": "boolean"
+        },
+        "start_line_one_indexed": {
+          "description": "O número de linha indexado em 1 para começar a leitura (inclusivo).",
+          "type": "number"
+        }
+      },
+      "required": ["relative_file_path", "should_read_entire_file", "start_line_one_indexed", "end_line_one_indexed"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Exclui um arquivo no caminho especificado. A operação falhará graciosamente se:\n    - O arquivo não existir\n    - A operação for rejeitada por razões de segurança\n    - O arquivo não puder ser excluído",
+    "name": "delete_file",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "relative_file_path": {
+          "description": "O caminho relativo para o arquivo a excluir.",
+          "type": "string"
+        }
+      },
+      "required": ["relative_file_path"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Use esta ferramenta para fazer edições grandes ou refatorações em um arquivo existente ou criar um novo arquivo.\nEspecifique o argumento `relative_file_path` primeiro.\n`code_edit` será lido por um modelo menos inteligente, que aplicará a edição rapidamente.\n\nTorne claro qual é a edição enquanto minimiza o código inalterado que você escreve.\nAo escrever a edição, especifique cada edição em sequência usando o comentário especial `// ... existing code ... <description of existing code>` para representar código inalterado entre linhas editadas.\n\nPor exemplo:\n```\n// ... existing code ... <original import statements>\n<first edit here>\n// ... existing code ... <`LoginButton` component>\n<second edit here>\n// ... existing code ... <the rest of the file>\n```\nSEMPRE inclua o comentário `// ... existing code ... <description of existing code>` para cada edição para indicar o código que não deve ser alterado.\n\nNÃO omita intervalos de código pré-existente sem usar o comentário `// ... existing code ... <description of existing code>` para indicar sua ausência.\n\nUse apenas emojis se o usuário solicitar explicitamente. Evite adicionar emojis aos arquivos a menos que solicitado.",
+    "name": "edit_file",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "code_edit": {
+          "description": "Especifique APENAS as linhas precisas de código que você deseja editar. **NUNCA especifique ou escreva código inalterado**. Em vez disso, represente todo código inalterado usando o comentário da linguagem que você está editando - exemplo: `// ...[existing code] <description of existing code> ...`.",
+          "type": "string"
+        },
+        "instructions": {
+          "description": "Uma instrução de frase única descrevendo o que você vai fazer para a edição esboçada. Não repita o que você disse anteriormente em mensagens normais. E use isso para desambiguar incerteza na edição.",
+          "type": "string"
+        },
+        "relative_file_path": {
+          "description": "O caminho relativo para o arquivo a modificar. A ferramenta criará quaisquer diretórios no caminho que não existam.",
+          "type": "string"
+        },
+        "smart_apply": {
+          "description": "Use um modelo mais inteligente para aplicar o code_edit. Isso é útil se a edição for longa, ou se a última edição estava incorreta e você está tentando novamente. Certifique-se de incluir os comentários `// ... existing code ...` apropriados para indicar o código que não deve ser alterado.",
+          "type": "boolean"
+        }
+      },
+      "required": ["relative_file_path", "instructions", "code_edit", "smart_apply"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Executa substituições exatas de string em arquivos.\nUse esta ferramenta para fazer edições pequenas e específicas em um arquivo. Por exemplo, para editar algum texto, algumas linhas de código, etc. Use edit_file para edições maiores.\n\nCertifique-se de preservar a indentação exata (tabs/espaços) como aparece APÓS o prefixo de número de linha adicionado pela ferramenta read_file.\nUse apenas esta ferramenta se você tiver certeza de que o old_string é único no arquivo, caso contrário use a ferramenta edit_file.\n\nA edição FALHARÁ se `old_string` não for único no arquivo. Forneça uma string maior com mais contexto circundante para torná-la única ou use `replace_all` para alterar cada instância de `old_string`.\n\nUse `replace_all` para substituir e renomear strings através do arquivo. Este parâmetro é útil se você quiser renomear uma variável por exemplo.\n\nUse apenas emojis se o usuário solicitar explicitamente. Evite adicionar emojis aos arquivos a menos que solicitado.",
+    "name": "string_replace",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "new_string": {
+          "description": "O novo texto para substituir o old_string.",
+          "type": "string"
+        },
+        "old_string": {
+          "description": "O texto a substituir. Deve ser único dentro do arquivo, e deve corresponder exatamente ao conteúdo do arquivo, incluindo todo whitespace e indentação.",
+          "type": "string"
+        },
+        "relative_file_path": {
+          "description": "O caminho relativo para o arquivo a modificar. A ferramenta criará quaisquer diretórios no caminho que não existam.",
+          "type": "string"
+        },
+        "replace_all": {
+          "description": "Substituir todas as ocorrências de old_string.",
+          "type": "boolean"
+        }
+      },
+      "required": ["relative_file_path", "old_string", "new_string", "replace_all"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Antes de executar esta ferramenta, certifique-se de que um script de lint existe no arquivo package.json do projeto e todos os pacotes foram instalados. Esta ferramenta retornará o resultado do linter e, quando disponível, erros de runtime e logs do servidor dev da última vez que a visualização foi atualizada.",
+    "name": "run_linter",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "package_manager": {
+          "description": "O gerenciador de pacotes usado para instalar as dependências.",
+          "enum": ["bun", "pnpm", "npm"],
+          "type": "string"
+        },
+        "project_directory": {
+          "description": "O diretório do projeto para executar linting.",
+          "type": "string"
+        }
+      },
+      "required": ["project_directory", "package_manager"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Cria uma nova versão para um projeto. Chamar esta ferramenta incrementará automaticamente a versão em 1. Se houver um servidor dev executando quando a ferramenta for chamada, a ferramenta mostrará um screenshot de página completa da visualização ao vivo da versão e retornará quaisquer erros de linter e runtime não resolvidos. Crie versões frequentemente.",
+    "name": "versioning",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "project_directory": {
+          "description": "O caminho relativo para o diretório do projeto a versionar. Este é o diretório que contém o arquivo package.json do projeto.",
+          "type": "string"
+        },
+        "version_changelog": {
+          "description": "O changelog da versão. Escreva 1-5 pontos curtos.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "version_number": {
+          "description": "Um número inteiro. Escreva uma string vazia para incrementar automaticamente.",
+          "type": "string"
+        },
+        "version_title": {
+          "description": "O título da versão. Isso é usado para ajudar o usuário a navegar para a versão.",
+          "type": "string"
+        }
+      },
+      "required": ["project_directory", "version_title", "version_changelog", "version_number"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Sugere 1-5 próximos passos para implementar com o USUÁRIO.",
+    "name": "suggestions",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "suggestions": {
+          "description": "Lista de 1-5 próximos passos sugeridos. Sem '-', pontos de bala, ou outra formatação.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["suggestions"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Faz deploy do projeto para Netlify. Versione o projeto antes de chamar esta ferramenta. Verifique cuidadosamente o screenshot de página completa da visualização ao vivo. Se o projeto for mesmo borderline ilegal ou moralmente inseguro, você não deve fazer deploy dele.\n\nDeployments estáticos vs dinâmicos:\nNetlify aceita deployments de sites estáticos ou dinâmicos. Fazer deploy de sites estáticos é muito mais rápido.\nNo entanto, se o projeto tiver backend, rotas API, ou banco de dados, faça deploy como site dinâmico.\n\nPara deployments de sites estáticos:\nUse 'zip -r9' para seu `build_and_zip_command` para criar um zip da saída do build. Por exemplo: `cd {project_directory} && {build_command} && mkdir -p output && zip -r9 output/output.zip {build_output_directory}`.\nCertifique-se de que o `relative_zip_path` aponte corretamente para o arquivo zip criado pelo `build_and_zip_command`.\nVocê não precisa executar o `build_and_zip_command` manualmente. A ferramenta executará para você.\nSe fazer deploy de um site estático falhar, tente fazer redeploy do projeto como site dinâmico.\nSe você tiver que fazer deploy de um site nextjs estático, leia o arquivo `next.config.js` e certifique-se de que inclui `output: 'export'` e `distDir: 'out'`.\n\nPara deployments de sites dinâmicos:\nEdite o arquivo `netlify.toml` para definir o comando de build correto e diretório de saída.\nPadrão para fazer deploy de projetos nextjs como sites dinâmicos.",
+    "name": "deploy",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "deploy_as_dynamic_site": {
+          "description": "Defina como true para fazer deploy como site dinâmico.",
+          "type": "boolean"
+        },
+        "deploy_as_static_site": {
+          "additionalProperties": false,
+          "description": "Para fazer deploy de um site estático. Escreva o build_and_zip_command e relative_zip_path. Caso contrário, escreva-os como strings vazias.",
+          "properties": {
+            "build_and_zip_command": {
+              "description": "Um comando para build do projeto e criar um zip da saída do build.",
+              "type": "string"
+            },
+            "relative_zip_path": {
+              "description": "Caminho relativo para o arquivo zip a fazer deploy.",
+              "type": "string"
+            }
+          },
+          "required": ["build_and_zip_command", "relative_zip_path"],
+          "type": "object"
+        }
+      },
+      "required": ["deploy_as_static_site", "deploy_as_dynamic_site"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Busca na web por respostas de texto e imagem em tempo real. Por exemplo, você pode obter informação atualizada que pode não estar disponível em seus dados de treinamento, verificar fatos atuais, ou encontrar imagens que você pode usar em seu projeto. Você verá o texto e imagens na resposta. Você pode usar as imagens usando os links na tag <img>. Use esta ferramenta para encontrar imagens que você pode usar em seu projeto. Por exemplo, se você precisar de um logo, use esta ferramenta para encontrar um logo.",
+    "name": "web_search",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "search_term": {
+          "description": "O termo de busca para procurar na web. Seja específico e inclua palavras-chave relevantes para melhores resultados. Para consultas técnicas, inclua números de versão ou datas se relevantes.",
+          "type": "string"
+        },
+        "type": {
+          "description": "O tipo de busca a executar (texto ou imagens).",
+          "enum": ["text", "images"],
+          "type": "string"
+        }
+      },
+      "required": ["search_term", "type"],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Raspa um website para ver seu design e conteúdo. Use esta ferramenta para obter título, descrição, conteúdo de um website, e screenshot (se solicitado). Use esta ferramenta sempre que USUÁRIO der a você uma URL de documentação para ler ou pedir para você clonar um website. Ao usar esta ferramenta, diga \"Vou visitar {url}...\" ou \"Vou ler {url}...\" e nunca diga \"Vou raspar\".",
+    "name": "web_scrape",
+    "parameters": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "include_screenshot": {
+          "description": "Se deve ver um screenshot do website. Defina como false ao ler documentação.",
+          "type": "boolean"
+        },
+        "theme": {
+          "description": "Para raspar o website em modo claro ou escuro.",
+          "enum": ["light", "dark"],
+          "type": "string"
+        },
+        "url": {
+          "description": "A URL do website para raspar. Deve ser uma URL válida começando com http:// ou https://",
+          "type": "string"
+        },
+        "viewport": {
+          "description": "O viewport para raspar o website.",
+          "enum": ["mobile", "tablet", "desktop"],
+          "type": "string"
+        }
+      },
+      "required": ["url", "theme", "viewport", "include_screenshot"],
+      "type": "object"
+    }
+  }
+]

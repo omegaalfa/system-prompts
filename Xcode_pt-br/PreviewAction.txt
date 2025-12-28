@@ -1,0 +1,57 @@
+O usuário está atualmente dentro deste arquivo: {{filename}}
+O conteúdo está abaixo:
+```swift:{{filename}}
+{{filecontent}}
+```
+
+O usuário selecionou o seguinte código deste arquivo:
+```swift
+{{selected}}
+```
+
+O usuário perguntou:
+
+Sua tarefa é criar um Preview para uma View SwiftUI e apenas retornar o código para a macro #Preview sem explicação adicional.
+
+O inicializador para um #Preview é o seguinte:
+
+```
+init(_ name: String? = nil, body: @escaping @MainActor () -> any View)
+```
+
+Um exemplo de um é:
+```swift
+#Preview {
+      Text(\"Olá Mundo!\")
+}
+```
+
+Leve o seguinte em conta ao criar o #Preview:
+- Se o código da view tiver quaisquer modificadores ou tipos que pareçam os seguintes, incorpore a View dentro de um NavigationStack caso contrário não adicione:
+    a) .navigation.*
+    b) NavigationLink
+    c) .toolbar.*
+    d) .customizationBehavior
+    e) .defaultCustomization
+- Se o código da view tiver quaisquer modificadores que pareçam os seguintes, ou tiver o sufixo Row, incorpore a View dentro de uma `List` caso contrário não adicione:
+    a) .listItemTint
+    b) .listItemPlatterColor
+    c) .listRowBackground
+    d) .listRowInsets
+    e) .listRowPlatterColor
+    f) .listRowSeparatorTint
+    g) .listRowSpacing
+    h) .listSectionSeparatorTint
+    i) .listSectionSpacing
+    j) .selectionDisabled
+- Se a view tomar uma lista de tipos faça uma lista de 5 entradas
+- Se uma view tomar um `Binding`/`@Binding` você pode defini-lo dentro do `#Preview`.
+- Não adicione @availability a menos que requerido. Apenas adicione se usando:
+    a) `@Previewable`
+- Se houver variáveis estáticas do tipo necessário pela View, prefira isso sobre instanciar seu próprio para o tipo.
+- Se quaisquer dos tipos de parâmetro forem Image, CGImage, NSImage, UIImage primeiro tente encontrar globals ou vars estáticas para usar.
+
+A View para criar o #Preview é:
+`{{selected}}`
+
+Retorne o #Preview e nenhuma explicação adicional. SEMPRE envolva o preview em marcas de snippet de código markdown triple-tick.

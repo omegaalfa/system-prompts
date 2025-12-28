@@ -1,0 +1,435 @@
+{
+  "lov-add-dependency": {
+    "description": "Use esta ferramenta para adicionar uma dependência ao projeto. A dependência deve ser um nome de pacote npm válido.",
+    "parameters": {
+      "properties": {
+        "package": {
+          "example": "lodash@latest",
+          "type": "string"
+        }
+      },
+      "required": ["package"],
+      "type": "object"
+    }
+  },
+  "lov-search-files": {
+    "description": "Busca de código baseada em regex com filtragem de arquivos e contexto.\n\nBusque usando padrões regex em arquivos do seu projeto.\n\nParâmetros:\n- query: Padrão regex para encontrar (ex.: \"useState\")\n- include_pattern: Arquivos para incluir usando sintaxe glob (ex.: \"src/**\")\n- exclude_pattern: Arquivos para excluir usando sintaxe glob (ex.: \"**/*.test.tsx\")\n- case_sensitive: Se deve corresponder maiúsculas/minúsculas (padrão: false)\n\nDica: Use \\\\ para escapar caracteres especiais em padrões regex.",
+    "parameters": {
+      "properties": {
+        "case_sensitive": {
+          "example": "false",
+          "type": "boolean"
+        },
+        "exclude_pattern": {
+          "example": "src/components/ui/**",
+          "type": "string"
+        },
+        "include_pattern": {
+          "example": "src/**",
+          "type": "string"
+        },
+        "query": {
+          "example": "useEffect\\(",
+          "type": "string"
+        }
+      },
+      "required": ["query", "include_pattern"],
+      "type": "object"
+    }
+  },
+  "lov-write": {
+    "description": "\nUse esta ferramenta para escrever em um arquivo. Sobrescreve o arquivo existente se houver um. O caminho do arquivo deve ser relativo à raiz do projeto.\n\n  ### IMPORTANTE: MINIMIZE A ESCRITA DE CÓDIGO\n  - PREFIRA usar lov-line-replace para a maioria das alterações em vez de reescrever arquivos inteiros\n  - Esta ferramenta é principalmente destinada para criar novos arquivos ou como fallback se lov-line-replace falhar\n  - Ao escrever quando necessário, MAXIMIZE o uso de \"// ... keep existing code\" para manter seções não modificadas\n  - APENAS escreva as seções específicas que precisam mudar - seja o mais preguiçoso possível com suas escritas\n  \n  ### Usando \"keep existing code\" (OBRIGATÓRIO para grandes seções inalteradas):\n  - Qualquer bloco de código inalterado com mais de 5 linhas DEVE usar comentário \"// ... keep existing code\"\n  - O comentário DEVE conter a string EXATA \"... keep existing code\" \n  - Exemplo: \"// ... keep existing code (user interface components)\"\n  - NUNCA reescreva grandes seções de código que não precisam mudar\n  \n  Exemplo com uso adequado de keep existing code:\n  ```\n  import React from 'react';\n  import './App.css';\n  \n  function App() {\n    // ... keep existing code (all UI components)\n    \n    // Only the new footer is being added\n    const Footer = () => (\n      New Footer Component\n    );\n    \n    return (\n      \n        // ... keep existing code (main content)\n        \n      \n    );\n  }\n  \n  export default App;\n  ```\n\n  ### Uso Paralelo de Ferramentas\n  - Se você precisar criar múltiplos arquivos, é muito importante que você crie todos de uma vez em vez de um por um, porque é muito mais rápido\n",
+    "parameters": {
+      "properties": {
+        "content": {
+          "example": "console.log('Hello, World!')",
+          "type": "string"
+        },
+        "file_path": {
+          "example": "src/main.ts",
+          "type": "string"
+        }
+      },
+      "required": ["file_path", "content"],
+      "type": "object"
+    }
+  },
+  "lov-line-replace": {
+    "description": "Ferramenta de Busca e Substituição Baseada em Linhas\n\nUse esta ferramenta para encontrar e substituir conteúdo específico em um arquivo que você tem acesso, usando números de linha explícitos. Esta é a ferramenta PREFERIDA e PRIMÁRIA para editar arquivos existentes. Sempre use esta ferramenta ao modificar código existente em vez de reescrever arquivos inteiros.\n\nForneça os seguintes detalhes para fazer uma edição:\n\t1.\tfile_path - O caminho do arquivo para modificar\n\t2.\tsearch - O conteúdo para buscar (use reticências ... para grandes seções em vez de escrevê-las por completo)\n\t3.\tfirst_replaced_line - O número da linha da primeira linha na busca (indexada em 1)\n\t4.\tlast_replaced_line - O número da linha da última linha na busca (indexada em 1)\n\t5.\treplace - O novo conteúdo para substituir o conteúdo encontrado\n\nA ferramenta validará que a busca corresponde ao conteúdo no intervalo de linhas especificado e então o substituirá por replace.\n\nIMPORTANTE: Ao invocar esta ferramenta múltiplas vezes em paralelo (múltiplas edições no mesmo arquivo), sempre use os números de linha originais do arquivo como você o visualizou inicialmente. Não ajuste números de linha baseados em edições anteriores.\n\nUSO DE RETICÊNCIAS:\nAo substituir seções de código maiores que ~6 linhas, você deve usar reticências (...) na sua busca para reduzir o número de linhas que precisa especificar (escrever menos linhas é mais rápido).\n- Inclua as primeiras linhas (tipicamente 2-3 linhas) da seção que você quer substituir\n- Adicione \"...\" em sua própria linha para indicar conteúdo omitido\n- Inclua as últimas linhas (tipicamente 2-3 linhas) da seção que você quer substituir\n- A chave é fornecer contexto único suficiente no início e no fim para garantir correspondência precisa\n- Foque em unicidade em vez de contagens exatas de linhas - às vezes 2 linhas são suficientes, às vezes você precisa de 4\n\n\n\nExemplo:\nPara substituir um componente de cartão de usuário nas linhas 22-42:\n\nConteúdo original no arquivo (linhas 20-45):\n20:   return (\n21:     \n22:       \n23:         \n24:         {user.name}\n25:         {user.email}\n26:         {user.role}\n27:         {user.department}\n28:         {user.location}\n29:         \n30:            onEdit(user.id)}>Edit\n31:            onDelete(user.id)}>Delete\n32:            onView(user.id)}>View\n33:         \n34:         \n35:           Created: {user.createdAt}\n36:           Updated: {user.updatedAt}\n37:           Status: {user.status}\n38:         \n39:         \n40:           Permissions: {user.permissions.join(', ')}\n41:         \n42:       \n43:     \n44:   );\n45: }\n\nPara uma substituição grande como esta, você deve usar reticências:\n- search: \"      \\n        \\n...\\n          Permissions: {user.permissions.join(', ')}\\n        \\n      \"\n- first_replaced_line: 22\n- last_replaced_line: 42\n- replace: \"      \\n        \\n           {\\n              e.currentTarget.src = '/default-avatar.png';\\n            }}\\n          />\\n        \\n        \\n          {user.name}\\n          {user.email}\\n          \\n            {user.role}\\n            {user.department}\\n          \\n        \\n        \\n           onEdit(user.id)}\\n            aria-label=\\\"Edit user profile\\\"\\n          >\\n            Edit Profile\\n          \\n        \\n      \"\n\nDiretrizes críticas:\n\t1. Números de Linha - Especifique first_replaced_line e last_replaced_line exatos (indexados em 1, primeira linha é linha 1)\n\t2. Uso de Reticências - Para grandes seções (>6 linhas), use reticências (...) para incluir apenas as primeiras e últimas linhas-chave identificadoras para correspondência mais limpa e focada\n\t3. Validação de Conteúdo - As partes prefixo e sufixo da busca (antes e depois das reticências) devem conter correspondências exatas de conteúdo do arquivo (sem números de linha). A ferramenta valida essas partes contra o conteúdo real do arquivo\n\t4. Validação de Arquivo - O arquivo deve existir e ser legível\n\t5. Chamadas Paralelas de Ferramentas - Quando múltiplas edições são necessárias, invoque as ferramentas necessárias simultaneamente em paralelo. NÃO espere uma edição completar antes de iniciar a próxima\n\t6. Números de Linha Originais - Ao fazer múltiplas edições no mesmo arquivo, sempre use números de linha originais da sua visualização inicial do arquivo",
+    "parameters": {
+      "properties": {
+        "file_path": {
+          "example": "src/components/TaskList.tsx",
+          "type": "string"
+        },
+        "first_replaced_line": {
+          "description": "Primeira linha para substituir (indexada em 1)",
+          "example": "15",
+          "type": "number"
+        },
+        "last_replaced_line": {
+          "description": "Última linha para substituir (indexada em 1)",
+          "example": "28",
+          "type": "number"
+        },
+        "replace": {
+          "description": "Novo conteúdo para substituir o conteúdo da busca (sem números de linha)",
+          "example": "  const handleTaskComplete = useCallback((taskId: string) => {\n    const updatedTasks = tasks.map(task =>\n      task.id === taskId \n        ? { ...task, completed: !task.completed, completedAt: new Date() }\n        : task\n    );\n    setTasks(updatedTasks);\n    onTaskUpdate?.(updatedTasks);\n    \n    // Analytics tracking\n    analytics.track('task_completed', { taskId, timestamp: Date.now() });\n  }, [tasks, onTaskUpdate]);",
+          "type": "string"
+        },
+        "search": {
+          "description": "Conteúdo para buscar no arquivo (sem números de linha). Deve corresponder ao código existente que será substituído.",
+          "example": "  const handleTaskComplete = (taskId: string) => {\n    setTasks(tasks.map(task =>\n...\n    ));\n    onTaskUpdate?.(updatedTasks);\n  };",
+          "type": "string"
+        }
+      },
+      "required": ["file_path", "search", "first_replaced_line", "last_replaced_line", "replace"],
+      "type": "object"
+    }
+  },
+  "lov-download-to-repo": {
+    "description": "Baixe um arquivo de uma URL e salve no repositório.\n\nEsta ferramenta é útil para:\n- Baixar imagens, assets ou outros arquivos de URLs. Baixe imagens na pasta src/assets e importe-as como módulos ES6.\n- Salvar recursos externos diretamente no projeto\n- Migrar arquivos de fontes externas para o repositório\n\nO arquivo será baixado e salvo no caminho especificado no repositório, pronto para ser usado no projeto.\nIMPORTANTE:NÃO USE esta ferramenta para lidar com imagens enviadas por usuários no chat e siga as instruções dadas com as imagens!\n\n",
+    "parameters": {
+      "properties": {
+        "source_url": {
+          "description": "A URL do arquivo para baixar",
+          "example": "https://example.com/image.png",
+          "type": "string"
+        },
+        "target_path": {
+          "description": "O caminho onde o arquivo deve ser salvo no repositório (use a pasta public a menos que especificado de outra forma)",
+          "example": "public/images/logo.png",
+          "type": "string"
+        }
+      },
+      "required": ["source_url", "target_path"],
+      "type": "object"
+    }
+  },
+  "lov-fetch-website": {
+    "description": "Busca um website e salva temporariamente seu conteúdo (markdown, HTML, screenshot) em arquivos em `tmp://fetched-websites/`. Retorna os caminhos para os arquivos criados e uma prévia do conteúdo.",
+    "parameters": {
+      "properties": {
+        "formats": {
+          "description": "Lista separada por vírgulas de formatos para retornar. Formatos suportados: 'markdown', 'html', 'screenshot'. Padrão para 'markdown'.",
+          "example": "markdown,screenshot",
+          "type": "string"
+        },
+        "url": {
+          "example": "https://example.com",
+          "type": "string"
+        }
+      },
+      "required": ["url"],
+      "type": "object"
+    }
+  },
+  "lov-copy": {
+    "description": "Use esta ferramenta para copiar um arquivo ou diretório para uma nova localização. Esta ferramenta é principalmente útil ao copiar arquivos de um sistema de arquivos virtual (ex.: `user-uploads://`) para o repositório do projeto.",
+    "parameters": {
+      "properties": {
+        "destination_file_path": {
+          "example": "src/main_copy.ts",
+          "type": "string"
+        },
+        "source_file_path": {
+          "example": "src/main.ts",
+          "type": "string"
+        }
+      },
+      "required": ["source_file_path", "destination_file_path"],
+      "type": "object"
+    }
+  },
+  "lov-view": {
+    "description": "Use esta ferramenta para ler o conteúdo de um arquivo. Se for um arquivo de projeto, o caminho do arquivo deve ser relativo à raiz do projeto. Você pode opcionalmente especificar intervalos de linhas para ler usando o parâmetro lines (ex.: \"1-800, 1001-1500\"). Por padrão, as primeiras 500 linhas são lidas se lines não for especificado.\n\nDIRETRIZES IMPORTANTES:\n- NÃO use esta ferramenta se o conteúdo do arquivo já foi fornecido em \n- NÃO especifique intervalos de linhas a menos que o arquivo seja muito grande (>500 linhas) - confie no comportamento padrão que mostra as primeiras 500 linhas\n- Apenas use intervalos de linhas quando você precisar ver seções específicas de arquivos grandes que não foram mostradas na visualização padrão\n- Se você precisar ler múltiplos arquivos, invoque esta ferramenta múltiplas vezes em paralelo (não sequencialmente) para eficiência",
+    "parameters": {
+      "properties": {
+        "file_path": {
+          "example": "src/App.tsx",
+          "type": "string"
+        },
+        "lines": {
+          "example": "1-800, 1001-1500",
+          "type": "string"
+        }
+      },
+      "required": ["file_path"],
+      "type": "object"
+    }
+  },
+  "lov-read-console-logs": {
+    "description": "Use esta ferramenta para ler o conteúdo dos logs mais recentes do console no momento em que o usuário enviou a solicitação.\nVocê pode opcionalmente fornecer uma consulta de busca para filtrar os logs. Se vazio você obterá todos os logs mais recentes.\nVocê pode não conseguir ver os logs que não aconteceram recentemente.\nOs logs não serão atualizados enquanto você estiver construindo e escrevendo código. Então não espere poder verificar se você corrigiu um problema lendo logs novamente. Eles serão os mesmos de quando você começou a escrever código.\nNÃO USE ISTO MAIS DE UMA VEZ pois você obterá os mesmos logs cada vez.",
+    "parameters": {
+      "properties": {
+        "search": {
+          "example": "error",
+          "type": "string"
+        }
+      },
+      "required": ["search"],
+      "type": "object"
+    }
+  },
+  "lov-read-network-requests": {
+    "description": "Use esta ferramenta para ler o conteúdo das solicitações de rede mais recentes. Você pode opcionalmente fornecer uma consulta de busca para filtrar as solicitações. Se vazio você obterá todas as solicitações mais recentes. Você pode não conseguir ver as solicitações que não aconteceram recentemente.",
+    "parameters": {
+      "properties": {
+        "search": {
+          "example": "error",
+          "type": "string"
+        }
+      },
+      "required": ["search"],
+      "type": "object"
+    }
+  },
+  "lov-remove-dependency": {
+    "description": "Use esta ferramenta para desinstalar um pacote do projeto.",
+    "parameters": {
+      "properties": {
+        "package": {
+          "example": "lodash",
+          "type": "string"
+        }
+      },
+      "required": ["package"],
+      "type": "object"
+    }
+  },
+  "lov-rename": {
+    "description": "Você DEVE usar esta ferramenta para renomear um arquivo em vez de criar novos arquivos e deletar os antigos. O caminho do arquivo original e novo deve ser relativo à raiz do projeto.",
+    "parameters": {
+      "properties": {
+        "new_file_path": {
+          "example": "src/main_new2.ts",
+          "type": "string"
+        },
+        "original_file_path": {
+          "example": "src/main.ts",
+          "type": "string"
+        }
+      },
+      "required": ["original_file_path", "new_file_path"],
+      "type": "object"
+    }
+  },
+  "lov-delete": {
+    "description": "Use esta ferramenta para deletar um arquivo. O caminho do arquivo deve ser relativo à raiz do projeto.",
+    "parameters": {
+      "properties": {
+        "file_path": {
+          "example": "src/App.tsx",
+          "type": "string"
+        }
+      },
+      "required": ["file_path"],
+      "type": "object"
+    }
+  },
+  "secrets--add_secret": {
+    "description": "Adicione um novo segredo como uma chave de API ou token. Se alguma integração precisar deste segredo ou um usuário quiser que você use um segredo, você pode usar esta ferramenta para adicioná-lo. Esta ferramenta garante que o segredo seja criptografado e armazenado adequadamente. Nunca peça ao usuário para fornecer o valor do segredo diretamente, em vez disso chame esta ferramenta para obter um segredo. Qualquer segredo que você adicionar estará disponível como variáveis de ambiente em todo código backend que você escrever. IMPORTANTE: Esta é a única maneira de coletar segredos de usuários, não adicione de nenhuma outra forma.",
+    "parameters": {
+      "properties": {
+        "secret_name": {
+          "example": "STRIPE_API_KEY",
+          "type": "string"
+        }
+      },
+      "required": ["secret_name"],
+      "type": "object"
+    }
+  },
+  "secrets--update_secret": {
+    "description": "Atualize um segredo existente como uma chave de API ou token. Se alguma integração precisar deste segredo ou um usuário quiser que você use um segredo, você pode usar esta ferramenta para atualizá-lo. Esta ferramenta garante que o segredo seja criptografado e armazenado adequadamente.",
+    "parameters": {
+      "properties": {
+        "secret_name": {
+          "example": "STRIPE_API_KEY",
+          "type": "string"
+        }
+      },
+      "required": ["secret_name"],
+      "type": "object"
+    }
+  },
+  "supabase--docs-search": {
+    "description": "Busque documentação oficial do Supabase via API de Conteúdo. Retorna resultados ranqueados com título, slug, URL e trecho de conteúdo.\n\nQUANDO USAR:\n- Encontrar documentação sobre auth, database, storage ou edge functions\n- Buscar por exemplos de código ou guias de implementação\n\nDICAS DE BUSCA:\n- Use termos específicos como \"row level security\", \"auth policies\", \"storage buckets\"\n- Tente diferentes combinações de palavras-chave se a busca inicial não render resultados\n\nPRÓXIMOS PASSOS:\n- Use ferramenta 'docs-get' com o slug retornado para buscar conteúdo estruturado completo\n\nEXEMPLOS:\n- \"RLS policies\" - retorna documentação de segurança em nível de linha  \n- \"storage file upload\" - mostra docs de implementação de armazenamento de arquivos",
+    "parameters": {
+      "properties": {
+        "max_results": {
+          "description": "Número máximo de resultados (padrão 5, limitado a 10)",
+          "type": "number"
+        },
+        "query": {
+          "description": "Consulta para buscar na documentação do Supabase",
+          "type": "string"
+        }
+      },
+      "required": ["query"],
+      "type": "object"
+    }
+  },
+  "supabase--docs-get": {
+    "description": "Busque uma página completa de documentação do Supabase por slug via API de Conteúdo. Retorna conteúdo estruturado incluindo markdown completo, outline de cabeçalhos e metadados.\n\nQUANDO USAR:\n- Após encontrar um documento relevante via 'docs-search'\n- Quando você tem um slug/caminho específico de documentação\n- Precisa de detalhes completos de implementação e exemplos de código\n\nFORMATO DE ENTRADA:\n- Use o slug dos resultados de busca (ex.: \"auth/row-level-security\")\n- Formato: \"categoria/subcategoria/nome-página\"\n\nSAÍDA INCLUI:\n- Conteúdo markdown completo com trechos de código\n- Outline estruturado de cabeçalhos\n\nEXEMPLOS:\n- \"auth/row-level-security\" - guia completo de implementação RLS\n- \"storage/uploads\" - implementação abrangente de upload de arquivos",
+    "parameters": {
+      "properties": {
+        "slug": {
+          "description": "Slug canônico do documento para buscar (ex. auth/row-level-security)",
+          "type": "string"
+        }
+      },
+      "required": ["slug"],
+      "type": "object"
+    }
+  },
+  "document--parse_document": {
+    "description": "Analise e extraia conteúdo de documentos (primeiras 50 páginas). Trata PDFs, Word docs, PowerPoint, Excel, MP3 e muitos outros formatos. Preserva estrutura do documento, tabelas, extrai imagens e executa OCR em imagens incorporadas.",
+    "parameters": {
+      "properties": {
+        "file_path": {
+          "description": "O caminho para o arquivo de documento a analisar",
+          "type": "string"
+        }
+      },
+      "required": ["file_path"],
+      "type": "object"
+    }
+  },
+  "imagegen--generate_image": {
+    "description": "Gera uma imagem baseada em um prompt de texto e salva no caminho de arquivo especificado. Use os melhores modelos para imagens grandes que são realmente importantes. Certifique-se de considerar proporção de aspecto dada a localização da imagem na página ao selecionar dimensões.\n\nPara imagens pequenas (menos de 1000px), use flux.schnell, é muito mais rápido e realmente bom! Este deve ser seu modelo padrão.\nQuando você gerar imagens grandes como uma imagem fullscreen, use flux.dev. A resolução máxima é 1920x1920.\nUma vez gerada, você DEVE importar as imagens no código como imports ES6.\n\nDicas de prompting:\n- Mencionar a proporção de aspecto no prompt ajudará o modelo gerar a imagem com as dimensões corretas. Por exemplo: \"Uma imagem de proporção 16:9 de um pôr do sol sobre um oceano calmo.\"\n- Use o sufixo \"Ultra high resolution\" nos seus prompts para maximizar qualidade da imagem.\n- Se você por exemplo estiver gerando uma imagem hero, mencione no prompt. Exemplo: \"Uma imagem hero de um pôr do sol sobre um oceano calmo.\"\n\nExemplo:\nimport heroImage from \"@/assets/hero-image.jpg\";\n\nIMPORTANTE: \n- Dimensões devem estar entre 512 e 1920 pixels e múltiplos de 32.\n- Certifique-se de não substituir imagens que usuários enviaram por imagens geradas a menos que eles peçam explicitamente.",
+    "parameters": {
+      "properties": {
+        "height": {
+          "description": "Altura da imagem (mínimo 512, máximo 1920)",
+          "type": "number"
+        },
+        "model": {
+          "description": "O modelo para usar na geração. Opções: flux.schnell (padrão), flux.dev. flux.dev gera imagens de qualidade superior mas é mais lento. Sempre use flux.schnell a menos que esteja gerando uma imagem grande como hero ou banner fullscreen, ou se o usuário pedir alta qualidade.",
+          "type": "string"
+        },
+        "prompt": {
+          "description": "Descrição em texto da imagem desejada",
+          "type": "string"
+        },
+        "target_path": {
+          "description": "O caminho do arquivo onde a imagem gerada deve ser salva. Prefira colocá-las na pasta 'src/assets'.",
+          "type": "string"
+        },
+        "width": {
+          "description": "Largura da imagem (mínimo 512, máximo 1920)",
+          "type": "number"
+        }
+      },
+      "required": ["prompt", "target_path"],
+      "type": "object"
+    }
+  },
+  "imagegen--edit_image": {
+    "description": "Edita ou mescla imagens existentes baseada em um prompt de texto.\n\nEsta ferramenta pode trabalhar com uma ou múltiplas imagens:\n- Imagem única: Aplica edições alimentadas por IA baseada no seu prompt\n- Múltiplas imagens: Mescla/combina imagens de acordo com seu prompt\n\nExemplos de prompts para imagem única:\n- \"faça chuvoso\"\n- \"mude para iluminação de pôr do sol\"\n- \"adicione neve\"\n- \"torne mais colorido\"\n\nExemplos de prompts para múltiplas imagens:\n- \"misture estas duas paisagens perfeitamente\"\n- \"combine o primeiro plano da primeira imagem com o fundo da segunda\"\n- \"mescle estes retratos em uma foto de grupo\"\n- \"crie um colagem destas imagens\"\n\n\nEsta ferramenta é ótima para consistência de objeto ou personagem. Você pode reutilizar a mesma imagem e colocá-la em diferentes cenas por exemplo. Se usuários pedirem para ajustar uma imagem existente, use esta ferramenta em vez de gerar uma nova imagem.",
+    "parameters": {
+      "properties": {
+        "image_paths": {
+          "description": "Array de caminhos para arquivos de imagem existentes. Para edição de imagem única, forneça um caminho. Para mesclar/combinar múltiplas imagens, forneça múltiplos caminhos.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "prompt": {
+          "description": "Descrição em texto de como editar/mesclar a(s) imagem(ns). Para múltiplas imagens, descreva como elas devem ser combinadas.",
+          "type": "string"
+        },
+        "target_path": {
+          "description": "O caminho do arquivo onde a imagem editada/mesclada deve ser salva.",
+          "type": "string"
+        }
+      },
+      "required": ["image_paths", "prompt", "target_path"],
+      "type": "object"
+    }
+  },
+  "websearch--web_search": {
+    "description": "Executa uma busca web e retorna resultados relevantes com conteúdo de texto.\nUse isto para encontrar informação atual, documentação ou qualquer conteúdo baseado na web.\nVocê pode opcionalmente pedir que links ou links de imagem sejam retornados também.\nVocê pode também opcionalmente especificar uma categoria de resultados de busca para retornar.\nCategorias válidas são (você deve usar a string exata):\n- \"news\"\n- \"linkedin profile\"\n- \"pdf\"\n- \"github\"\n- \"personal site\"\n- \"financial report\"\n\nNão há outras categorias. Se você não especificar uma categoria, a busca será geral.\n\nQuando usar?\n- Quando você não tem nenhuma informação sobre o que o usuário está perguntando.\n- Quando você precisa encontrar informação atual, documentação ou qualquer conteúdo baseado na web.\n- Quando você precisa encontrar informação técnica específica, etc.\n- Quando você precisa encontrar informação sobre uma pessoa, empresa ou organização específica.\n- Quando você precisa encontrar informação sobre um evento, produto ou serviço específico.\n- Quando você precisa encontrar imagens reais (não geradas por IA) sobre uma pessoa, empresa ou organização específica.\n\n** Diretrizes de busca **\n\nVocê pode filtrar resultados para domínios específicos usando \"site:domain.com\" na sua consulta.\nVocê pode especificar múltiplos domínios: \"site:docs.anthropic.com site:github.com API documentation\" irá buscar em ambos os domínios.\nVocê pode buscar por frases exatas colocando-as entre aspas duplas: '\"gpt5\" model name OAI' irá incluir \"gpt5\" na busca.\nVocê pode excluir palavras específicas prefixando-as com menos: jaguar speed -car irá excluir \"car\" da busca.\nPara informação técnica, as seguintes fontes são especialmente úteis: stackoverflow, github, docs oficiais do produto, framework ou serviço.\nConsidere \"Data atual\" nas suas respostas. Por exemplo, se suas instruções dizem \"Data atual: 2025-07-01\", e o usuário quer os docs mais recentes, não\nuse 2024 na consulta de busca. Use 2025!\n",
+    "parameters": {
+      "properties": {
+        "category": {
+          "description": "Categoria de resultados de busca para retornar",
+          "type": "string"
+        },
+        "imageLinks": {
+          "description": "Número de links de imagem para retornar para cada resultado",
+          "type": "number"
+        },
+        "links": {
+          "description": "Número de links para retornar para cada resultado",
+          "type": "number"
+        },
+        "numResults": {
+          "description": "Número de resultados de busca para retornar (padrão: 5)",
+          "type": "number"
+        },
+        "query": {
+          "description": "A consulta de busca",
+          "type": "string"
+        }
+      },
+      "required": ["query"],
+      "type": "object"
+    }
+  },
+  "analytics--read_project_analytics": {
+    "description": "Leia os analytics para o build de produção do projeto entre duas datas, com uma dada granularidade. A granularidade pode ser 'hourly' ou 'daily'. As datas de início e fim devem estar no formato YYYY-MM-DD.\nAs datas de início e fim devem estar no formato RFC3339 ou apenas data (YYYY-MM-DD).\n\nQuando usar esta ferramenta:\n- Quando o usuário está perguntando sobre uso do app deles\n- Quando usuários querem melhorar seus apps de produção",
+    "parameters": {
+      "properties": {
+        "enddate": {
+          "type": "string"
+        },
+        "granularity": {
+          "type": "string"
+        },
+        "startdate": {
+          "type": "string"
+        }
+      },
+      "required": ["startdate", "enddate", "granularity"],
+      "type": "object"
+    }
+  },
+  "stripe--enable_stripe": {
+    "description": "Habilite a integração Stripe no projeto atual. Chamar esta ferramenta irá solicitar ao usuário sua chave secreta do Stripe.",
+    "parameters": {
+      "properties": {},
+      "required": [],
+      "type": "object"
+    }
+  },
+  "security--run_security_scan": {
+    "description": "Execute análise de segurança abrangente do backend Supabase para detectar dados expostos, políticas RLS faltando e configurações de segurança incorretas",
+    "parameters": {
+      "properties": {},
+      "required": [],
+      "type": "object"
+    }
+  },
+  "security--get_security_scan_results": {
+    "description": "Busque informação de segurança sobre o projeto que o usuário tem acesso. Defina force=true para obter resultados mesmo se um scan estiver rodando.",
+    "parameters": {
+      "properties": {
+        "force": {
+          "type": "boolean"
+        }
+      },
+      "required": ["force"],
+      "type": "object"
+    }
+  },
+  "security--get_table_schema": {
+    "description": "Obtenha informação de esquema de tabela de banco de dados e prompt de análise de segurança para o banco de dados Supabase do projeto",
+    "parameters": {
+      "properties": {},
+      "required": [],
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "tools": [
+    {
+      "name": "FetchFromWeb",
+      "description": "Busca conteúdo de texto completo de páginas web quando você tem URLs específicas para ler. Retorna texto limpo e analisado com metadados.\n\n**Quando usar:**\n• **URLs conhecidas** - Você tem páginas/artigos específicos que precisa ler completamente\n• **Análise profunda de conteúdo** - Precisa do texto completo, não apenas trechos de resultados de busca  \n• **Leitura de documentação** - Documentos externos, tutoriais ou materiais de referência\n• **Pesquisa de acompanhamento** - Após busca na web, buscar resultados específicos promissores\n\n**O que você obtém:**\n• Conteúdo completo do texto da página (limpo e analisado)\n• Metadados: título, autor, data de publicação, favicon, imagens\n• Múltiplas URLs processadas em uma única solicitação\n\n**vs SearchWeb:** Use isso quando você sabe exatamente quais URLs ler; use SearchWeb para encontrar URLs primeiro.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          },
+          "urls": {
+            "description": "URLs para buscar conteúdo de texto completo. Funciona com qualquer página web publicamente acessível.\n\n**Use quando precisar:**\n• Texto completo de artigo ou documento (não apenas trechos de busca)\n• Conteúdo específico de URLs conhecidas\n• Páginas completas de documentação ou tutoriais\n• Informações detalhadas que requerem leitura da página inteira\n\n**Exemplos:**\n• [\"https://nextjs.org/docs/app/building-your-application/routing\"]\n• [\"https://blog.example.com/article-title\", \"https://docs.example.com/api-reference\"]",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["urls", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "GrepRepo",
+      "description": "Pesquisa por padrões regex dentro do conteúdo de arquivos no repositório. Retorna linhas correspondentes com caminhos de arquivo e números de linha, perfeito para exploração e análise de código.\n\nCasos de uso principais:\n• Encontrar definições de função: 'function\\s+myFunction' ou 'const\\s+\\w+\\s*='\n• Localizar importações/exportações: 'import.*from' ou 'export\\s+(default|\\{)'\n• Pesquisar por classes específicas: 'class\\s+ComponentName' ou 'interface\\s+\\w+'\n• Encontrar chamadas de API: 'fetch\\(' ou 'api\\.(get|post)'\n• Descobrir configuração: 'process\\.env' ou chaves de configuração específicas\n• Rastrear padrões de uso: nomes de componentes, variáveis ou chamadas de método\n• Encontrar texto específico: 'User Admin' ou 'TODO'\n\nEstratégias de busca:\n• Use padrões glob para focar em tipos de arquivo relevantes (*.ts, *.jsx, src/**)\n• Combine com filtragem de caminho para diretórios específicos\n• Comece amplo, depois restrinja com padrões mais específicos\n• Lembre-se: correspondência sem distinção de maiúsculas/minúsculas, máximo de 200 resultados retornados\n",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "globPattern": {
+            "description": "\nOpcional: Um padrão glob para filtrar quais arquivos são pesquisados (ex.: '*.js', '*.{ts,tsx}', 'src/**'). Se omitido, pesquisa todos os arquivos (respeitando possíveis ignorados globais).\n",
+            "type": "string"
+          },
+          "path": {
+            "description": "Opcional: O caminho absoluto para o diretório a ser pesquisado. Se omitido, pesquisa todos os arquivos.",
+            "type": "string"
+          },
+          "pattern": {
+            "description": "O padrão de expressão regular (regex) para pesquisar dentro do conteúdo dos arquivos (ex.: 'function\\s+myFunction', 'import\\s+\\{.*\\}\\s+from\\s+.*').",
+            "type": "string"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          }
+        },
+        "required": ["pattern", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "LSRepo",
+      "description": "Lista arquivos e diretórios no repositório. Retorna caminhos de arquivo ordenados alfabeticamente com filtragem opcional baseada em padrões.\n\nCasos de uso comuns:\n• Explorar estrutura do repositório e entender layout do projeto\n• Encontrar arquivos em diretórios específicos (ex.: 'src/', 'components/')\n• Localizar arquivos de configuração, documentação ou tipos específicos de arquivo\n• Obter visão geral de arquivos disponíveis antes de mergulhar em áreas específicas\n\nDicas:\n• Use caminhos específicos para restringir resultados (máximo de 200 entradas retornadas)\n• Combine com padrões de ignorar para excluir arquivos irrelevantes\n• Comece com diretório raiz para obter visão geral do projeto, depois aprofunde\n",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "globPattern": {
+            "description": "\nOpcional: Um padrão glob para filtrar quais arquivos são listados (ex.: '*.js', '*.{ts,tsx}', 'src/**'). Se omitido, lista todos os arquivos.\n",
+            "type": "string"
+          },
+          "ignore": {
+            "description": "Lista de padrões glob para ignorar",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "path": {
+            "description": "O caminho absoluto para o diretório a ser listado (deve ser absoluto, não relativo)",
+            "type": "string"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          }
+        },
+        "required": ["taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ReadFile",
+      "description": "Lê conteúdo de arquivo de forma inteligente - retorna arquivos completos quando pequenos, pedaços paginados ou pedaços direcionados quando grandes baseado na sua consulta.\n\n**Como funciona:**\n• **Arquivos pequenos** (≤2000 linhas) - Retorna conteúdo completo\n• **Arquivos grandes** (>2000 linhas) - Usa IA para encontrar e retornar pedaços relevantes baseado na consulta\n• **Arquivos binários** - Retorna imagens, trata conteúdo blob adequadamente\n• Qualquer linha maior que 2000 caracteres é truncada para legibilidade\n• Linha inicial e final podem ser fornecidas para ler seções específicas de um arquivo\n\n**Quando usar:**\n• **Antes de editar** - Sempre leia arquivos antes de fazer mudanças\n• **Entendendo implementação** - Como recursos ou funções específicas funcionam\n• **Encontrando código específico** - Localizar padrões, funções ou configurações em arquivos grandes  \n• **Análise de código** - Entender estrutura, dependências ou padrões\n\n**Estratégia de consulta:**\nPor padrão, você deve evitar consultas ou paginação para que possa coletar o contexto completo.\nSe você receber um aviso dizendo que o arquivo é muito grande, então seja específico sobre o que está procurando - quanto mais direcionada sua consulta, melhores os pedaços relevantes retornados.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "endLine": {
+            "description": "Número da linha final (baseado em 1). Inclua linhas suficientes para capturar funções completas, classes ou blocos de código lógicos.",
+            "type": "number"
+          },
+          "filePath": {
+            "description": "O caminho absoluto para o arquivo a ser lido (ex.: 'app/about/page.tsx'). Caminhos relativos não são suportados. Você deve fornecer um caminho absoluto.",
+            "type": "string"
+          },
+          "query": {
+            "description": "O que você está procurando no arquivo. Necessário para arquivos grandes (>2000 linhas), opcional para arquivos menores.\n\n**Tipos de consulta:**\n• **Uso de função/hook** - \"Como useAuth é usado?\" ou \"Encontre todas as chamadas de API\"\n• **Detalhes de implementação** - \"Lógica de autenticação\" ou \"padrões de tratamento de erro\"\n• **Recursos específicos** - \"Validação de formulário\" ou \"consultas de banco de dados\"\n• **Padrões de código** - \"Componentes React\" ou \"interfaces TypeScript\"\n• **Configuração** - \"Variáveis de ambiente\" ou \"configuração de roteamento\"\n\n**Exemplos:**\n• \"Mostre-me a implementação de tratamento de erro\"\n• \"Localize a lógica de validação de formulário\"",
+            "type": "string"
+          },
+          "startLine": {
+            "description": "Número da linha inicial (baseado em 1). Use resultados grep ou locais estimados para direcionar seções específicas de código.",
+            "type": "number"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          }
+        },
+        "required": ["filePath", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "InspectSite",
+      "description": "Tira screenshots para verificar bugs visuais relatados pelo usuário ou capturar designs de referência de websites ao vivo para recriação.\n\n**Use para:**\n• **Verificação de bug visual** - Quando usuários relatam problemas de layout, elementos desalinhados ou problemas de estilo\n• **Recriação de website** - Capturando designs de referência (ex.: \"recriar homepage da Nike\", \"copiar página de preços do Stripe\")\n\n**Técnico:** Converte URLs localhost para URLs de preview, otimiza tamanhos de screenshot, suporta múltiplas URLs.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          },
+          "urls": {
+            "description": "URLs para capturar screenshots. Suporta tanto websites ao vivo quanto servidores de desenvolvimento local.\n\n**Tipos de URL suportados:**\n• **Websites ao vivo**: \"https://example.com\", \"https://app.vercel.com/dashboard\"\n• **Desenvolvimento local**: \"http://localhost:3000\" (convertido automaticamente para URLs de preview do CodeProject)\n• **Páginas específicas**: Inclua caminhos completos como \"https://myapp.com/dashboard\" ou \"localhost:3000/products\"\n\n**Melhores práticas:**\n• Use rotas de página específicas em vez de apenas homepage para inspeção direcionada\n• Inclua URLs localhost para verificar se seu preview do CodeProject está funcionando\n• Múltiplas URLs podem ser capturadas em uma única solicitação para comparação",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["urls", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "SearchWeb",
+      "description": "Realiza busca inteligente na web usando fontes de alta qualidade e retorna respostas abrangentes e citadas. Prioriza documentação de primeira parte para produtos do ecossistema Vercel.\n\nCasos de uso principais:\n- Documentação de tecnologia - Recursos mais recentes, referências de API, guias de configuração\n- Melhores práticas atuais - Padrões e recomendações de desenvolvimento atualizadas  \n- Informações específicas de produto - Vercel, Next.js, AI SDK e ferramentas do ecossistema\n- Detalhes específicos de versão - Novos lançamentos, mudanças disruptivas, guias de migração\n- Integrações externas - Configuração de serviços de terceiros, fluxos de autenticação\n- Eventos atuais - Desenvolvimentos recentes em desenvolvimento web, atualizações de framework\n\nQuando usar:\n- Usuário solicita explicitamente busca na web ou informação externa\n- Perguntas sobre produtos Vercel (OBRIGATÓRIO para precisão)\n- Informação provavelmente desatualizada nos dados de treinamento\n- Detalhes técnicos não disponíveis no codebase atual\n- Comparação de ferramentas, frameworks ou abordagens\n- Procurando mensagens de erro, orientação de debug ou solução de problemas\n\nEstratégia de busca:\n- Faça múltiplas buscas direcionadas para cobertura abrangente\n- Use números de versão específicos e nomes de produto para precisão\n- Aproveite fontes de primeira parte (isFirstParty: true) para consultas do ecossistema Vercel",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "isFirstParty": {
+            "description": "Habilite busca de documentação de primeira parte de alta qualidade - Defina como true ao consultar produtos do ecossistema Vercel para informação mais rápida, precisa e atualizada de bases de conhecimento curadas.\n\nSempre use isFirstParty: true para:\n- Produtos Core Vercel: Next.js, plataforma Vercel, recursos de deployment, variáveis de ambiente\n- Ferramentas de Desenvolvimento: Turborepo, Turbopack, Vercel CLI, Vercel Toolbar\n- Produtos AI/ML: AI SDK, v0, AI Gateway, Workflows, Fluid Compute\n- Suporte a Framework: Integrações Nuxt, Svelte, SvelteKit\n- Recursos de Plataforma: Vercel Marketplace, Vercel Queues, analytics, monitoramento\n\nDomínios suportados: [nextjs.org, turbo.build, vercel.com, sdk.vercel.ai, svelte.dev, react.dev, tailwindcss.com, typescriptlang.org, ui.shadcn.com, radix-ui.com, authjs.dev, date-fns.org, orm.drizzle.team, playwright.dev, remix.run, vitejs.dev, www.framer.com, www.prisma.io, vuejs.org, community.vercel.com, supabase.com, upstash.com, neon.tech, v0.app, docs.edg.io, docs.stripe.com, effect.website, flags-sdk.dev]\n\nPor que usar busca de primeira parte:\n- Maior precisão do que busca geral na web para ecossistema Vercel\n- Atualizações de recursos mais recentes e mudanças de API\n- Exemplos oficiais e melhores práticas\n- Guias abrangentes de solução de problemas\n\nREQUISITO: Você DEVE usar SearchWeb com isFirstParty: true quando qualquer produto Vercel for mencionado para garantir informação precisa e atual.",
+            "type": "boolean"
+          },
+          "query": {
+            "description": "A consulta de busca a ser realizada na web. Seja específico e direcionado para melhores resultados.\n\nExemplos:\n- \"Recursos do app router Next.js 15\" - para versões/recursos específicos de tecnologia\n- \"Variáveis de ambiente de deployment Vercel\" - para documentação específica de produto\n- \"Melhores práticas de componentes de servidor React 2025\" - para melhores práticas atuais\n- \"Layouts de grid Tailwind CSS\" - para orientação específica de implementação\n- \"Configuração de modo estrito TypeScript\" - para configuração técnica detalhada",
+            "type": "string"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          }
+        },
+        "required": ["query", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "TodoManager",
+      "description": "Gerencia listas de tarefas estruturadas para projetos complexos e multi-etapas. Rastreia progresso através de tarefas em nível de marco e gera planos de implementação técnica.\n\n**Fluxo de trabalho core:**\n1. **set_tasks** - Divida projeto em 3-7 tarefas de marco (sistemas distintos, recursos principais, integrações)\n2. **move_to_task** - Complete trabalho atual, foque na próxima tarefa\n\n**Diretrizes de tarefa:**\n• **Tarefas em nível de marco** - \"Construir Homepage\", \"Configurar Auth\", \"Adicionar Banco de Dados\" (não micro-etapas)\n• **Uma página = uma tarefa** - Não divida páginas únicas em múltiplas tarefas\n• **UI antes de backend** - Faça scaffold de páginas primeiro, depois adicione dados/auth/integrações\n• **≤10 tarefas total** - Mantenha focado e gerenciável\n• **NÃO tarefas vagas** - Nunca use \"Polir\", \"Testar\", \"Finalizar\" ou outras bobagens sem sentido\n\n**Quando usar:**\n• Projetos com múltiplos sistemas distintos que precisam trabalhar juntos\n• Apps requerendo componentes separados voltados ao usuário e admin  \n• Integrações complexas com múltiplos recursos independentes\n\n**Quando NÃO usar:**\n• Construções coesas únicas (mesmo se complexas) - landing pages, forms, componentes\n• Tarefas triviais ou de etapa única\n• Solicitações conversacionais/informacionais\n\n**Exemplos:**\n\n• **Múltiplos Sistemas**: \"Construir um form de waitlist com dashboard admin protegido por auth\"\n  → \"Obter Integração de Banco de Dados, Criar Form de Waitlist, Construir Dashboard Admin, Configurar Proteção Auth\"\n\n• **App com Recursos Distintos**: \"Criar um app de receita com contas de usuário e favoritos\"\n  → \"Configurar Autenticação, Construir Navegador de Receitas, Criar Perfis de Usuário, Adicionar Sistema de Favoritos\"\n\n• **Integração Complexa**: \"Adicionar conteúdo gerado por usuário com moderação ao meu site\"\n  → \"Obter Integração de Banco de Dados, Criar Submissão de Conteúdo, Construir Dashboard de Moderação, Configurar Gerenciamento de Usuário\"\n\n• **Pular TodoManager**: \"Construir uma landing page de SaaS de email\" ou \"Adicionar um form de contato\" ou \"Criar uma seção de preços\"\n  → Pule todos - componentes coesos únicos, apenas construa diretamente",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "description": "Ação de gerenciamento de tarefas para tarefas complexas e multi-etapas:\n\n**Ações core:**\n• **set_tasks** - Criar quebra inicial de tarefas (máximo 7 tarefas em nível de marco)\n• **move_to_task** - Complete trabalho atual e foque na próxima tarefa específica\n• **add_task** - Adicionar tarefa única à lista existente\n\n**Ações utilitárias:**\n• **read_list** - Ver lista de tarefas atual sem mudanças\n• **mark_all_done** - Complete todas as tarefas (projeto terminado)\n\n**Quando usar:** Projetos multi-etapas, implementações complexas, tarefas requerendo 3+ etapas. Pule para tarefas triviais ou de etapa única.",
+            "enum": ["add_task", "set_tasks", "mark_all_done", "move_to_task", "read_list"],
+            "type": "string"
+          },
+          "moveToTask": {
+            "description": "Nome exato da tarefa para focar em move_to_task. Marca todas as tarefas anteriores como feitas.",
+            "type": "string"
+          },
+          "task": {
+            "description": "Descrição da tarefa para add_task. Use tarefas em nível de marco, não micro-etapas.",
+            "type": "string"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          },
+          "tasks": {
+            "description": "Lista completa de tarefas para set_tasks. Primeira se torna em progresso, resto todo.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["action", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "SearchRepo",
+      "description": "Lança um novo agente que pesquisa e explora o codebase usando múltiplas estratégias de busca (grep, listagem de arquivo, leitura de conteúdo). \n\nRetorna arquivos relevantes e informação contextual para responder consultas sobre estrutura de código, funcionalidade e conteúdo.\n\n**Capacidades core:**\n- Descoberta de arquivo e análise de conteúdo através do repositório inteiro\n- Correspondência de padrão com busca regex para constructos de código específicos\n- Exploração de diretório e entendimento de estrutura de projeto\n- Seleção inteligente de arquivo e extração de conteúdo com chunking para arquivos grandes\n- Respostas contextuais combinando resultados de busca com análise de código\n\n**Quando usar:**\n- **Exploração de arquitetura** - Entendendo estrutura de projeto, dependências e padrões\n- **Preparação para refatoração** - Encontrando todas as instâncias de funções, componentes ou padrões\n- Delegue para subagentes quando a tarefa claramente se beneficiar de um agente separado com uma nova janela de contexto\n",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "goal": {
+            "description": "Contexto breve (1-3 frases) sobre por que você está pesquisando e o que planeja fazer com os resultados.\n\nExemplos:\n- \"Preciso entender o fluxo de autenticação para adicionar suporte OAuth.\"\n- \"Estou procurando todas as interações de banco de dados para otimizar queries.\"\n",
+            "type": "string"
+          },
+          "query": {
+            "description": "Descreva o que você está procurando no codebase. Pode ser arquivos separados por vírgula, padrões de código, funcionalidade ou tarefas gerais de exploração.\n\nTipos de consulta:\n- **Ler Múltiplos Arquivos**: \"components/ui/button.tsx, utils/api.ts\"\n- **Busca de funcionalidade**: \"lógica de autenticação\", \"configuração de conexão de banco de dados\", \"endpoints de API para gerenciamento de usuário\"\n- **Padrões de código**: \"componentes React usando useState\", \"padrões de tratamento de erro\"\n- **Tarefas de refatoração**: \"encontrar todos os usos da função getCurrentUser\", \"localizar styling para botões\", \"arquivos de config e setup de ambiente\"\n- **Exploração de arquitetura**: \"configuração de roteamento\", \"padrões de gerenciamento de estado\"\n- **Conhecendo a estrutura do codebase**: \"Dê-me uma visão geral do codebase\" (FRASE EXATA) - **COMECE AQUI quando você não conhece o codebase ou onde começar**",
+            "type": "string"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          }
+        },
+        "required": ["query", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "GenerateDesignInspiration",
+      "description": "Gere inspiração de design para garantir que suas gerações sejam visualmente atraentes. \n\nQuando usar:\n- Solicitações de design vagas - Usuário pede por \"uma boa landing page\" ou \"dashboard moderno\"\n- Aprimoramento criativo necessário - Requisitos básicos precisam de inspiração visual e especificidade\n- Direção de design necessária - Sem estética clara, esquema de cores ou estilo visual fornecido\n- Projetos UI/UX complexos - Layouts multi-seção, branding ou fluxos de experiência do usuário\n\nPule quando:\n- Trabalho backend/API - Nenhum componente de design visual envolvido\n- Ajustes de styling menores - Mudanças CSS simples ou pequenos ajustes\n- Design já detalhado - Usuário tem mockups específicos, wireframes ou requisitos detalhados\n- Copiando um design existente - o usuário fornece design exato para replicar\n\nImportante: Se você gerar um brief de design, você DEVE segui-lo.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "description": "Pistas de design opcionais, adjetivos de marca, restrições.",
+            "type": "string"
+          },
+          "goal": {
+            "description": "Meta de produto/recurso ou UX de alto nível.",
+            "type": "string"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          }
+        },
+        "required": ["goal", "taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    },
+    {
+      "name": "GetOrRequestIntegration",
+      "description": "Verifica status de integração, recupera variáveis de ambiente e obtém schemas de banco de dados ao vivo. Automaticamente solicita integrações faltantes dos usuários antes de prosseguir.\n\n**O que fornece:**\n• **Status de integração** - Serviços conectados e estado de configuração\n• **Variáveis de ambiente** - Vars de ambiente de projeto disponíveis e requisitos faltantes\n• **Schemas de banco de dados ao vivo** - Info de tabela/coluna em tempo real para integrações SQL, políticas RLS para tabelas se configuradas (Supabase, Neon, etc.). Use isso em vez de ler scripts de arquivos para entender schema de banco de dados para integrações conectadas. \n• **Exemplos de integração** - Links para templates de código de exemplo quando disponíveis\n\n**Quando usar:**\n• **Antes de construir recursos de integração** - Auth, payments, operações de banco de dados, chamadas de API\n• **Debugging problemas de integração** - Vars de ambiente faltantes, problemas de conexão, incompatibilidades de schema\n• **Descoberta de projeto** - Entendendo quais serviços estão disponíveis para trabalhar\n• **Schema de banco de dados necessário** - Antes de escrever queries SQL ou operações ORM\n\n**Comportamento chave:**\nPara execuções e solicita configuração do usuário para integrações faltantes, garantindo que todos os serviços necessários estejam conectados antes da geração de código.",
+      "parameters": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "additionalProperties": false,
+        "properties": {
+          "names": {
+            "description": "Nomes específicos de integração para verificar ou solicitar. Omita para obter visão geral de todas as integrações conectadas e variáveis de ambiente.\n\n**Quando especificar integrações:**\n• Usuário quer construir algo requerendo serviços específicos (auth, banco de dados, payments)\n• Precisa de schema de banco de dados ou políticas RLS para integrações SQL (Supabase, Neon, PlanetScale)\n• Verificando se integrações necessárias estão corretamente configuradas\n• Antes de implementar recursos dependentes de integração\n\n**Integrações disponíveis:** Upstash para Redis, Upstash Search, Neon, Supabase, Groq, Grok, fal, Deep Infra, Stripe, Blob, Edge Config, Vercel AI Gateway\n\n**Exemplos:**\n• [\"Supabase\"] - Obter schema de banco de dados e verificar setup de auth\n• [] ou omita - Obter visão geral de todas as integrações conectadas e vars de ambiente",
+            "items": {
+              "enum": [
+                "Upstash for Redis",
+                "Upstash Search",
+                "Neon",
+                "Supabase",
+                "Groq",
+                "Grok",
+                "fal",
+                "Deep Infra",
+                "Stripe",
+                "Blob",
+                "Edge Config",
+                "Vercel AI Gateway"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "taskNameActive": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está em execução. Será mostrado na UI. Por exemplo, \"Verificando Clima de SF\".",
+            "type": "string"
+          },
+          "taskNameComplete": {
+            "description": "2-5 palavras descrevendo a tarefa quando ela está completa. Será mostrado na UI. Não deve sinalizar sucesso ou falha, apenas que a tarefa está feita. Por exemplo, \"Verificou Clima de SF\".",
+            "type": "string"
+          }
+        },
+        "required": ["taskNameActive", "taskNameComplete"],
+        "type": "object"
+      }
+    }
+  ]
+}

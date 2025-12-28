@@ -1,0 +1,541 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "view",
+        "description": "Ver um arquivo ou diretório. Para arquivos, opcionalmente pesquisar dentro do arquivo usando um padrão regex ou limitar a um intervalo de linhas. Excluir a pasta 'electron' por padrão a menos que explicitamente solicitado.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["file", "directory"],
+              "description": "Se deve ver um único arquivo ou uma listagem de diretório (até 2 níveis)."
+            },
+            "path": {
+              "type": "string",
+              "description": "Caminho relativo à raiz do repositório."
+            },
+            "view_range": {
+              "type": "array",
+              "items": { "type": "integer" },
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "Intervalo opcional [start_line, end_line] baseado em 1 inclusivo para arquivos."
+            },
+            "search_query_regex": {
+              "type": "string",
+              "description": "Regex opcional para pesquisar dentro do conteúdo do arquivo (regex de linha única)."
+            },
+            "case_sensitive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Se a pesquisa regex é sensível a maiúsculas."
+            },
+            "context_lines_before": {
+              "type": "integer",
+              "default": 5,
+              "description": "Linhas de contexto a incluir antes de cada correspondência regex."
+            },
+            "context_lines_after": {
+              "type": "integer",
+              "default": 5,
+              "description": "Linhas de contexto a incluir após cada correspondência regex."
+            }
+          },
+          "required": ["type", "path"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "grep-search",
+        "description": "Pesquisar através de múltiplos arquivos/diretórios ou todo o código-fonte. Use para encontrar texto/símbolos através de muitos arquivos. Exclui 'electron/**' por padrão a menos que explicitamente substituído.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Texto ou regex a pesquisar."
+            },
+            "paths": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Lista opcional de diretórios ou arquivos para limitar o escopo da pesquisa."
+            },
+            "include_globs": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Padrões glob opcionais a incluir (ex.: 'src/**/*.ts')."
+            },
+            "exclude_globs": {
+              "type": "array",
+              "items": { "type": "string" },
+              "default": ["electron/**"],
+              "description": "Padrões glob opcionais a excluir. Padrão para excluir a pasta 'electron'."
+            },
+            "case_sensitive": {
+              "type": "boolean",
+              "default": false,
+              "description": "Sensibilidade a maiúsculas para a pesquisa."
+            },
+            "context_lines_before": {
+              "type": "integer",
+              "default": 5,
+              "description": "Linhas de contexto antes de cada correspondência."
+            },
+            "context_lines_after": {
+              "type": "integer",
+              "default": 5,
+              "description": "Linhas de contexto após cada correspondência."
+            },
+            "max_results": {
+              "type": "integer",
+              "default": 5000,
+              "description": "Limitar o número de correspondências retornadas."
+            }
+          },
+          "required": ["query"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "codebase-retrieval",
+        "description": "Recuperação de alto nível através do código-fonte atual para localizar arquivos, classes, funções ou padrões relevantes quando você não sabe onde procurar.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "information_request": {
+              "type": "string",
+              "description": "Descrição em linguagem natural do que você precisa encontrar."
+            }
+          },
+          "required": ["information_request"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "git-commit-retrieval",
+        "description": "Use o histórico de commits do repositório para encontrar como mudanças similares foram feitas no passado ou por que mudanças aconteceram.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "information_request": {
+              "type": "string",
+              "description": "Pergunta sobre mudanças passadas (ex.: como/por que um recurso foi implementado)."
+            }
+          },
+          "required": ["information_request"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "str-replace-editor",
+        "description": "Editar arquivos existentes com segurança. Use 'str_replace' para substituições no local com intervalos de linhas explícitos, ou 'insert' para inserir novo conteúdo em uma linha específica.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": ["str_replace", "insert"],
+              "description": "Modo de edição: 'str_replace' ou 'insert'."
+            },
+            "path": {
+              "type": "string",
+              "description": "Caminho do arquivo a editar, relativo à raiz do repo."
+            },
+            "instruction_reminder": {
+              "type": "string",
+              "description": "Deve ser exatamente: 'ALWAYS BREAK DOWN EDITS INTO SMALLER CHUNKS OF AT MOST 150 LINES EACH.'"
+            },
+            "insert_line_1": {
+              "type": "integer",
+              "description": "Para 'insert': número de linha baseado em 1 após o qual inserir. Use 0 para inserir no início."
+            },
+            "new_str_1": {
+              "type": "string",
+              "description": "Para 'str_replace' e 'insert': o novo conteúdo."
+            },
+            "old_str_1": {
+              "type": "string",
+              "description": "Para 'str_replace': o texto original exato a substituir (deve corresponder exatamente, incluindo espaços em branco)."
+            },
+            "old_str_start_line_number_1": {
+              "type": "integer",
+              "description": "Para 'str_replace': linha inicial baseada em 1 de old_str_1."
+            },
+            "old_str_end_line_number_1": {
+              "type": "integer",
+              "description": "Para 'str_replace': linha final baseada em 1 de old_str_1 (inclusiva)."
+            }
+          },
+          "required": ["command", "path", "instruction_reminder"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "save-file",
+        "description": "Criar um novo arquivo. Não modifica arquivos existentes.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "instructions_reminder": {
+              "type": "string",
+              "description": "Deve ser exatamente: 'LIMIT THE FILE CONTENT TO AT MOST 300 LINES. IF MORE CONTENT NEEDS TO BE ADDED USE THE str-replace-editor TOOL TO EDIT THE FILE AFTER IT HAS BEEN CREATED.'"
+            },
+            "path": {
+              "type": "string",
+              "description": "Caminho para o novo arquivo, relativo à raiz do repo."
+            },
+            "file_content": {
+              "type": "string",
+              "description": "Conteúdo a escrever no novo arquivo."
+            },
+            "add_last_line_newline": {
+              "type": "boolean",
+              "default": true,
+              "description": "Se deve garantir uma nova linha final."
+            }
+          },
+          "required": ["instructions_reminder", "path", "file_content"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "remove-files",
+        "description": "Deletar arquivos do workspace de forma reversível.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_paths": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Lista de caminhos de arquivo a remover, relativo à raiz do repo."
+            }
+          },
+          "required": ["file_paths"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "launch-process",
+        "description": "Executar um comando shell. Use wait=true para comandos curtos. OS é win32; shell é 'bash'.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": { "type": "string", "description": "O comando shell a executar." },
+            "wait": { "type": "boolean", "description": "Se deve aguardar o processo completar." },
+            "max_wait_seconds": { "type": "integer", "description": "Timeout em segundos quando wait=true." },
+            "cwd": { "type": "string", "description": "Diretório de trabalho absoluto para o comando." }
+          },
+          "required": ["command", "wait", "max_wait_seconds", "cwd"],
+          "additionalProperties": false
+        }
+      }
+    },
+    { "type": "function", "function": {
+      "name": "read-process",
+      "description": "Ler saída de um processo previamente lançado.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "terminal_id": { "type": "integer", "description": "ID de terminal alvo." },
+          "wait": { "type": "boolean", "description": "Se deve aguardar conclusão." },
+          "max_wait_seconds": { "type": "integer", "description": "Timeout quando wait=true." }
+        },
+        "required": ["terminal_id", "wait", "max_wait_seconds"],
+        "additionalProperties": false
+      }
+    }},
+    { "type": "function", "function": {
+      "name": "write-process",
+      "description": "Escrever entrada para o stdin de um processo em execução.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "terminal_id": { "type": "integer", "description": "ID de terminal alvo." },
+          "input_text": { "type": "string", "description": "Texto a escrever para stdin." }
+        },
+        "required": ["terminal_id", "input_text"],
+        "additionalProperties": false
+      }
+    }},
+    { "type": "function", "function": {
+      "name": "kill-process",
+      "description": "Matar um processo em execução pelo ID de terminal.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "terminal_id": { "type": "integer", "description": "ID de terminal alvo." }
+        },
+        "required": ["terminal_id"],
+        "additionalProperties": false
+      }
+    }},
+    { "type": "function", "function": {
+      "name": "list-processes",
+      "description": "Listar todos os terminais conhecidos criados com a ferramenta launch-process.",
+      "parameters": { "type": "object", "properties": {}, "additionalProperties": false }
+    }},
+    {
+      "type": "function",
+      "function": {
+        "name": "diagnostics",
+        "description": "Retornar problemas do IDE (erros, avisos, etc.) para arquivos especificados.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "paths": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Lista de caminhos de arquivo para obter problemas."
+            }
+          },
+          "required": ["paths"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "read-terminal",
+        "description": "Ler a saída visível do terminal ativo ou mais recentemente usado do VSCode.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "only_selected": {
+              "type": "boolean",
+              "description": "Se deve ler apenas o texto selecionado."
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "open-browser",
+        "description": "Abrir uma URL no navegador padrão.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": { "type": "string", "description": "URL a abrir." }
+          },
+          "required": ["url"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "web-search",
+        "description": "Pesquisar na web usando a API de Pesquisa Personalizada do Google.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": { "type": "string", "description": "Consulta de pesquisa." },
+            "num_results": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "default": 5,
+              "description": "Número de resultados a retornar (1–10)."
+            }
+          },
+          "required": ["query"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "web-fetch",
+        "description": "Buscar uma página web e retornar seu conteúdo em formato Markdown.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": { "type": "string", "description": "URL a buscar." }
+          },
+          "required": ["url"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "view-range-untruncated",
+        "description": "Ver um intervalo específico de linhas de conteúdo previamente truncado pelo ID de referência.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "reference_id": { "type": "string", "description": "ID de referência do rodapé de truncamento." },
+            "start_line": { "type": "integer", "description": "Linha inicial inclusiva baseada em 1." },
+            "end_line": { "type": "integer", "description": "Linha final inclusiva baseada em 1." }
+          },
+          "required": ["reference_id", "start_line", "end_line"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "search-untruncated",
+        "description": "Pesquisar dentro de conteúdo previamente não truncado pelo ID de referência.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "reference_id": { "type": "string", "description": "ID de referência do rodapé de truncamento." },
+            "search_term": { "type": "string", "description": "Texto a pesquisar." },
+            "context_lines": { "type": "integer", "default": 2, "description": "Linhas de contexto ao redor das correspondências." }
+          },
+          "required": ["reference_id", "search_term"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "view_tasklist",
+        "description": "Ver a lista de tarefas atual para a conversa.",
+        "parameters": { "type": "object", "properties": {}, "additionalProperties": false }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "add_tasks",
+        "description": "Adicionar uma ou mais novas tarefas (e subtarefas opcionais) à lista de tarefas.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "description": { "type": "string" },
+                  "parent_task_id": { "type": "string" },
+                  "after_task_id": { "type": "string" },
+                  "state": {
+                    "type": "string",
+                    "enum": ["NOT_STARTED", "IN_PROGRESS", "CANCELLED", "COMPLETE"]
+                  }
+                },
+                "required": ["name", "description"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["tasks"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "update_tasks",
+        "description": "Atualizar propriedades de uma ou mais tarefas (estado, nome, descrição). Prefira atualizações em lote.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "task_id": { "type": "string" },
+                  "state": {
+                    "type": "string",
+                    "enum": ["NOT_STARTED", "IN_PROGRESS", "CANCELLED", "COMPLETE"]
+                  },
+                  "name": { "type": "string" },
+                  "description": { "type": "string" }
+                },
+                "required": ["task_id"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["tasks"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "reorganize_tasklist",
+        "description": "Reestruturação major da lista de tarefas usando uma representação markdown completa.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "markdown": { "type": "string", "description": "Lista de tarefas completa em markdown com exatamente uma tarefa raiz." }
+          },
+          "required": ["markdown"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "remember",
+        "description": "Armazenar memória de longo prazo que pode ser útil em interações futuras.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "memory": { "type": "string", "description": "Uma frase concisa a lembrar." }
+          },
+          "required": ["memory"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "render-mermaid",
+        "description": "Renderizar um diagrama Mermaid da definição fornecida.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "diagram_definition": { "type": "string", "description": "Código de definição Mermaid." },
+            "title": { "type": "string", "description": "Título opcional para o diagrama." }
+          },
+          "required": ["diagram_definition"],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

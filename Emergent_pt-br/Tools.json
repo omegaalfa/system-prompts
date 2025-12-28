@@ -1,0 +1,232 @@
+FERRAMENTAS DISPONÍVEIS E SEUS ESQUEMAS JSON:
+
+1. mcp_bulk_file_writer
+   Description: Escrever múltiplos arquivos simultaneamente para melhor performance
+   Parameters:
+   {
+     "files": {
+       "type": "array",
+       "items": {
+         "type": "object",
+         "properties": {
+           "path": {"type": "string", "description": "Caminho absoluto para o arquivo"},
+           "content": {"type": "string", "description": "Conteúdo de texto bruto para o arquivo"}
+         },
+         "required": ["path", "content"]
+       }
+     },
+     "capture_logs_backend": {"type": "boolean", "default": false},
+     "capture_logs_frontend": {"type": "boolean", "default": false},
+     "status": {"type": "boolean", "default": false}
+   }
+
+2. emergent_integrations_manager
+   Description: Obter a chave Emergent LLM para integração llm (openai, anthropic, google)
+   Parameters: {}
+
+3. extract_file_tool
+   Description: Extrair dados estruturados específicos de arquivos de documento
+   Supported formats: .txt, .js, .py, .html, .css, .json, .xml, .csv, .md, .pdf, .docx, .xlsx, .pptx, .png, .jpg, .jpeg, .webp, .heic, .heif, .wav, .mp3, .mpeg, .aiff, .aac, .ogg, .flac, .mov, .mpeg, .mp4, .mpg, .avi, .wmv, .mpegps, .flv
+   Parameters:
+   {
+     "source": {"type": "string", "description": "URL direta ou caminho de arquivo local"},
+     "prompt": {"type": "string", "description": "Quais dados específicos extrair"},
+     "headers": {"type": "object", "description": "Cabeçalhos HTTP adicionais (opcional)"},
+     "timeout": {"type": "integer", "default": 30}
+   }
+
+4. ask_human
+   Description: Perguntar ao usuário humano por esclarecimento, informações adicionais, confirmação ou feedback
+   Parameters:
+   {
+     "question": {"type": "string", "description": "A pergunta a fazer ao usuário humano"}
+   }
+
+5. analyze_file_tool
+   Description: Análise alimentada por IA em arquivos de documento para insights e padrões
+   Supported formats: Same as extract_file_tool
+   Parameters:
+   {
+     "source": {"type": "string"},
+     "analysis_type": {"type": "string", "enum": ["general", "structure", "content", "sentiment", "security", "performance", "compliance", "custom"]},
+     "query": {"type": "string", "description": "Pergunta específica de análise (opcional)"},
+     "headers": {"type": "object"},
+     "timeout": {"type": "integer", "default": 30}
+   }
+
+6. mcp_glob_files
+   Description: Correspondência rápida de padrões de arquivo com padrões glob
+   Parameters:
+   {
+     "pattern": {"type": "string", "description": "O padrão glob para corresponder arquivos"},
+     "path": {"type": "string", "description": "Diretório para pesquisar (opcional)"}
+   }
+
+7. execute_bash
+   Description: Executar um comando bash no terminal
+   Parameters:
+   {
+     "command": {"type": "string", "description": "O comando bash para executar"}
+   }
+
+8. grep_tool
+   Description: Pesquisar conteúdo de arquivo usando ripgrep com padrões regex
+   Parameters:
+   {
+     "pattern": {"type": "string", "description": "O padrão regex para pesquisar"},
+     "path": {"type": "string", "description": "Diretório ou arquivo para pesquisar"},
+     "case_sensitive": {"type": "boolean"},
+     "context_lines": {"type": "integer"},
+     "include": {"type": "string", "description": "Padrões de arquivo para incluir"}
+   }
+
+9. mcp_view_file
+   Description: Visualizar conteúdo de arquivo ou diretório
+   Parameters:
+   {
+     "path": {"type": "string", "description": "O caminho absoluto para o arquivo a visualizar"},
+     "view_range": {"type": "array", "items": {"type": "integer"}, "description": "Intervalo de linha opcional [início, fim]"}
+   }
+
+10. mcp_search_replace
+    Description: Pesquisar e substituir string exata em arquivo
+    Parameters:
+    {
+      "path": {"type": "string"},
+      "old_str": {"type": "string", "description": "String exata para substituir - deve corresponder EXATAMENTE"},
+      "new_str": {"type": "string", "description": "String de substituição"},
+      "replace_all": {"type": "boolean", "default": false},
+      "run_lint": {"type": "boolean", "default": false},
+      "status": {"type": "boolean", "default": false}
+    }
+
+11. mcp_lint_python
+    Description: Linting Python usando ruff
+    Parameters:
+    {
+      "path_pattern": {"type": "string", "description": "Caminho de arquivo/diretório ou padrão glob"},
+      "fix": {"type": "boolean", "default": false},
+      "exclude_patterns": {"type": "array", "items": {"type": "string"}}
+    }
+
+12. mcp_lint_javascript
+    Description: Linting JavaScript/TypeScript usando ESLint
+    Parameters:
+    {
+      "path_pattern": {"type": "string"},
+      "fix": {"type": "boolean", "default": false},
+      "exclude_patterns": {"type": "array", "items": {"type": "string"}}
+    }
+
+13. mcp_create_file
+    Description: Criar um novo arquivo com conteúdo especificado
+    Parameters:
+    {
+      "path": {"type": "string", "description": "O caminho absoluto para o novo arquivo"},
+      "file_text": {"type": "string", "description": "Conteúdo para o novo arquivo"},
+      "run_lint": {"type": "boolean", "default": false}
+    }
+
+14. mcp_insert_text
+    Description: Inserir texto em um número de linha específico em um arquivo
+    Parameters:
+    {
+      "path": {"type": "string"},
+      "new_str": {"type": "string"},
+      "insert_line": {"type": "integer", "minimum": 0},
+      "run_lint": {"type": "boolean", "default": false}
+    }
+
+15. finish
+    Description: Fornecer resumo conciso para clareza e transição
+    Parameters:
+    {
+      "summary": {"type": "string", "description": "Fornecer resumo baseado nas entradas e exemplos fornecidos"}
+    }
+
+16. get_assets_tool
+    Description: Recuperar ativos anexados do banco de dados para o trabalho/execução atual
+    Parameters: {}
+
+17. screenshot_tool
+    Description: Executar comandos de screenshot usando Playwright
+    Parameters:
+    {
+      "page_url": {"type": "string"},
+      "script": {"type": "string", "description": "Script Python Playwright completo"},
+      "capture_logs": {"type": "boolean", "default": false}
+    }
+
+18. mcp_view_bulk
+    Description: Visualizar múltiplos arquivos ou diretórios em sequência
+    Parameters:
+    {
+      "paths": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 20}
+    }
+
+19. web_search_tool_v2
+    Description: Pesquisar na web por informações atuais, eventos recentes ou tópicos
+    Parameters:
+    {
+      "query": {"type": "string"},
+      "search_context_size": {"type": "string", "enum": ["low", "medium", "high"]}
+    }
+
+20. think
+    Description: Pensar sobre algo - anexar pensamento ao log
+    Parameters:
+    {
+      "thought": {"type": "string"}
+    }
+
+21. crawl_tool
+    Description: Raspar, rastrear, recuperar ou extrair conteúdo completo de páginas web
+    Parameters:
+    {
+      "url": {"type": "string"},
+      "extraction_method": {"type": "string", "enum": ["scrape"]},
+      "formats": {"type": "string", "enum": ["html", "markdown", "json"], "default": "markdown"},
+      "question": {"type": "string", "default": "text"}
+    }
+
+22. vision_expert_agent
+    Description: Assistente alimentado por IA para selecionar e retornar URLs de imagem relevantes
+    Parameters:
+    {
+      "task": {"type": "string", "description": "Tarefa detalhada para o agente habilidoso executar"}
+    }
+
+23. auto_frontend_testing_agent
+    Description: Agente especialista para testes de UI usando playwright e automação de navegador
+    Parameters:
+    {
+      "task": {"type": "string"}
+    }
+
+24. deep_testing_backend_v2
+    Description: Agente especialista para testar backend usando curl e UI usando playwright
+    Parameters:
+    {
+      "task": {"type": "string"}
+    }
+
+25. integration_playbook_expert_v2
+    Description: Cria playbooks abrangentes para integrar APIs e serviços de terceiros
+    Parameters:
+    {
+      "task": {"type": "string"}
+    }
+
+26. support_agent
+    Description: Ajudar com qualquer resposta sobre a plataforma Emergent
+    Parameters:
+    {
+      "task": {"type": "string"}
+    }
+
+27. deployment_agent
+    Description: Agente especialista para depurar problemas de deployment nativo no Emergent
+    Parameters:
+    {
+      "task": {"type": "string"}
+    }

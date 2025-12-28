@@ -1,0 +1,380 @@
+// Inicia uma visualização do navegador para um servidor web. Isso permite ao USUÁRIO interagir com o servidor web normalmente, bem como fornecer logs do console e outras informações do servidor web para Cascade. Note que esta chamada de ferramenta não abrirá automaticamente a visualização do navegador para o USUÁRIO, eles devem clicar em um dos botões fornecidos para abri-lo no navegador.
+type browser_preview = (_: {
+// Um nome curto de 3-5 palavras para o servidor web alvo. Deve ser em title-case, ex.: 'Website Pessoal'. Formate como uma string simples, não como markdown; e por favor output o título diretamente, não prefixe com 'Title:' ou similar.
+Name: string,
+// A URL do servidor web alvo para fornecer visualização do navegador. Deve conter o scheme (ex.: http:// ou https://), domínio (ex.: localhost ou 127.0.0.1), e porta (ex.: :8080) mas nenhum path.
+Url: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Recupera os logs do console de uma página do navegador que já está aberta no Navegador Windsurf.
+type capture_browser_console_logs = (_: {
+// page_id da página do Navegador para capturar logs do console.
+PageId: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Captura um screenshot do viewport atual de uma página do navegador que já está aberta no Navegador Windsurf.
+type capture_browser_screenshot = (_: {
+// page_id da página do Navegador para capturar screenshot.
+PageId: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Verifica o status do deployment usando seu windsurf_deployment_id para uma aplicação web e determina se o build da aplicação teve sucesso e se foi reivindicado. Não execute isso a menos que solicitado pelo usuário. Deve ser executado apenas após uma chamada de ferramenta deploy_web_app.
+type check_deploy_status = (_: {
+// O ID de deployment Windsurf para o deploy que queremos verificar status. Este NÃO é um project_id.
+WindsurfDeploymentId: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Encontra snippets de código do codebase mais relevantes para a query de busca. Funciona melhor quando a query de busca é mais precisa e relacionada à função ou propósito do código. Resultados serão pobres se perguntar uma questão muito ampla, como perguntar sobre o 'framework' geral ou 'implementação' de um componente ou sistema grande. Mostrará apenas o conteúdo completo do código dos itens top, e eles podem também ser truncados. Para outros itens mostrará apenas a docstring e assinatura. Use view_code_item com o mesmo path e nome de node para visualizar o conteúdo completo do código para qualquer item. Note que se você tentar buscar sobre mais de 500 arquivos, a qualidade dos resultados de busca será substancialmente pior. Tente buscar sobre um grande número de arquivos apenas se for realmente necessário.
+type codebase_search = (_: {
+// Query de busca
+Query: string,
+// Lista de caminhos absolutos para diretórios para buscar
+TargetDirectories: string[],
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Obtém o status de um comando do terminal previamente executado por seu ID. Retorna o status atual (executando, concluído), linhas de output conforme especificado pela prioridade de output, e qualquer erro se presente. Não tente verificar o status de quaisquer IDs outros que IDs de comando Background.
+type command_status = (_: {
+// ID do comando para obter status
+CommandId: string,
+// Número de caracteres para visualizar. Faça isso o menor possível para evitar uso excessivo de memória.
+OutputCharacterCount: integer,
+// Número de segundos para aguardar conclusão do comando antes de obter o status. Se o comando completar antes desta duração, esta chamada de ferramenta retornará cedo. Defina como 0 para obter o status do comando imediatamente. Se você estiver apenas interessado em aguardar conclusão do comando, defina como 60.
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+WaitDurationSeconds: integer,
+toolSummary?: string,
+}) => any;
+
+// Salva contexto importante relevante ao USUÁRIO e sua tarefa para um banco de dados de memória.
+// Exemplos de contexto para salvar:
+// - Preferências do USUÁRIO
+// - Solicitações explícitas do USUÁRIO para lembrar algo ou alterar seu comportamento
+// - Snippets de código importantes
+// - Stacks técnicas
+// - Estrutura do projeto
+// - Marcos importantes ou funcionalidades
+// - Novos padrões de design e decisões arquiteturais
+// - Qualquer outra informação que você pense ser importante lembrar.
+// Antes de criar uma nova memória, primeiro verifique se uma memória semanticamente relacionada já existe no banco de dados. Se encontrada, atualize-a em vez de criar uma duplicata.
+// Use esta ferramenta para excluir memórias incorretas quando necessário.
+type create_memory = (_: {
+// O tipo de ação para tomar na MEMÓRIA. Deve ser um de 'create', 'update', ou 'delete'
+Action: "create" | "update" | "delete",
+// Conteúdo de uma nova ou atualizada MEMÓRIA. Ao excluir uma MEMÓRIA existente, deixe em branco.
+Content: string,
+// CorpusNames dos workspaces associados à MEMÓRIA. Cada elemento deve ser uma correspondência exata de string COMPLETA, incluindo todos os símbolos, com um dos CorpusNames fornecidos em seu prompt do sistema. Usado apenas ao criar uma nova MEMÓRIA.
+CorpusNames: string[],
+// Id de uma MEMÓRIA existente para atualizar ou excluir. Ao criar uma nova MEMÓRIA, deixe em branco.
+Id: string,
+// Tags para associar com a MEMÓRIA. Serão usados para filtrar ou recuperar a MEMÓRIA. Usado apenas ao criar uma nova MEMÓRIA. Use snake_case.
+Tags: string[],
+// Título descritivo para uma nova ou atualizada MEMÓRIA. Isso é requerido ao criar ou atualizar uma memória. Ao excluir uma MEMÓRIA existente, deixe em branco.
+Title: string,
+// Defina como true se o usuário explicitamente pediu para criar/modificar esta memória.
+UserTriggered: boolean,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Faz deploy de uma aplicação web JavaScript para um provedor de deployment como Netlify. Site não precisa ser built. Apenas os arquivos fonte são requeridos. Certifique-se de executar a ferramenta read_deployment_config primeiro e que todos os arquivos faltantes sejam criados antes de tentar fazer deploy. Se você estiver fazendo deploy para um site existente, use o project_id para identificar o site. Se você estiver fazendo deploy de um novo site, deixe o project_id vazio.
+type deploy_web_app = (_: {
+// O framework da aplicação web.
+Framework: "eleventy" | "angular" | "astro" | "create-react-app" | "gatsby" | "gridsome" | "grunt" | "hexo" | "hugo" | "hydrogen" | "jekyll" | "middleman" | "mkdocs" | "nextjs" | "nuxtjs" | "remix" | "sveltekit" | "svelte",
+// O ID do projeto da aplicação web se existir no arquivo de configuração de deployment. Deixe VAZIO para novos sites ou se o usuário gostaria de renomear um site. Se for um re-deploy, procure o ID do projeto no arquivo de configuração de deployment e use exatamente o mesmo ID.
+ProjectId: string,
+// O caminho completo absoluto do projeto da aplicação web.
+ProjectPath: string,
+// Subdomínio ou nome do projeto usado na URL. Deixe VAZIO se você estiver fazendo deploy para um site existente usando o project_id. Para um novo site, o subdomínio deve ser único e relevante ao projeto.
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+Subdomain: string,
+toolSummary?: string,
+}) => any;
+
+// Busca por arquivos e subdiretórios dentro de um diretório especificado usando fd.
+// Busca usa case inteligente e ignorará arquivos gitignored por padrão.
+// Pattern e Excludes ambos usam formato glob. Se você estiver buscando Extensions, não há necessidade de especificar ambos Pattern E Extensions.
+// Para evitar output excessivo, os resultados são limitados a 50 correspondências. Use os vários argumentos para filtrar o escopo de busca conforme necessário.
+// Resultados incluirão o tipo, tamanho, tempo de modificação, e caminho relativo.
+type find_by_name = (_: {
+// Opcional, exclui arquivos/diretórios que correspondam aos padrões glob dados
+Excludes: string[],
+// Opcional, extensões de arquivo para incluir (sem . inicial), caminhos correspondentes devem corresponder a pelo menos uma das extensões incluídas
+Extensions: string[],
+// Opcional, se o caminho absoluto completo deve corresponder ao padrão glob, padrão: apenas filename precisa corresponder. Tenha cuidado ao especificar padrões glob com esta flag ligada, ex. quando FullPath está ligado, padrão '*.py' não corresponderá ao arquivo '/foo/bar.py', mas padrão '**/*.py' corresponderá.
+FullPath: boolean,
+// Opcional, profundidade máxima para buscar
+MaxDepth: integer,
+// Opcional, Padrão para buscar, suporta formato glob
+Pattern: string,
+// O diretório para buscar dentro
+SearchDirectory: string,
+// Opcional, filtro de tipo, enum=file,directory,any
+Type: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Obtém a árvore DOM de uma página aberta no Navegador Windsurf.
+type get_dom_tree = (_: {
+// page_id da página do Navegador para obter árvore DOM
+PageId: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Usa ripgrep para encontrar correspondências exatas de padrão dentro de arquivos ou diretórios.
+// Resultados são retornados em formato JSON e para cada correspondência você receberá:
+// - Filename
+// - LineNumber
+// - LineContent: o conteúdo da linha correspondente
+// Total de resultados é limitado a 50 correspondências. Use a opção Includes para filtrar por tipo de arquivo ou caminhos específicos para refinar sua busca.
+type grep_search = (_: {
+// Se true, executa uma busca case-insensitive.
+CaseInsensitive: boolean,
+// Padrões glob para filtrar arquivos encontrados dentro do 'SearchPath', se 'SearchPath' for um diretório. Por exemplo, '*.go' para incluir apenas arquivos Go, ou '!**/vendor/*' para excluir diretórios vendor. Este NÃO é para especificar o diretório de busca primário; use 'SearchPath' para isso. Deixe vazio se nenhum filtro glob for necessário ou se 'SearchPath' for um arquivo único.
+Includes: string[],
+// Se true, trata Query como um padrão de expressão regular com caracteres especiais como *, +, (, etc. tendo significado regex. Se false, trata Query como uma string literal onde todos os caracteres são correspondidos exatamente. Use false para buscas de texto normal e true apenas quando você especificamente precisar de funcionalidade regex.
+IsRegex: boolean,
+// Se true, retorna cada linha que corresponde à query, incluindo números de linha e snippets de linhas correspondentes (equivalente a 'git grep -nI'). Se false, retorna apenas os nomes dos arquivos contendo a query (equivalente a 'git grep -l').
+MatchPerLine: boolean,
+// O termo de busca ou padrão para procurar dentro de arquivos.
+Query: string,
+// O caminho para buscar. Pode ser um diretório ou arquivo. Este é um parâmetro requerido.
+SearchPath: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Lista todas as páginas abertas no Navegador Windsurf e seus metadados (page_id, url, title, tamanho do viewport, etc.).
+type list_browser_pages = (_: {
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Lista o conteúdo de um diretório. Caminho do diretório deve ser um caminho absoluto para um diretório que existe. Para cada filho no diretório, output terá: caminho relativo ao diretório, se é diretório ou arquivo, tamanho em bytes se arquivo, e número de filhos (recursivo) se diretório.
+type list_dir = (_: {
+// Caminho para listar conteúdo, deve ser caminho absoluto para um diretório que existe.
+DirectoryPath: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Lista os recursos disponíveis de um servidor MCP.
+type list_resources = (_: {
+// Nome do servidor para listar recursos disponíveis.
+ServerName: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Abre uma URL no Navegador Windsurf para visualizar o conteúdo da página de uma URL em formato renderizado.
+type open_browser_url = (_: {
+// A URL para abrir no navegador do usuário.
+Url: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Lê uma página aberta no Navegador Windsurf.
+type read_browser_page = (_: {
+// page_id da página do Navegador para ler
+PageId: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Lê a configuração de deployment para uma aplicação web e determina se a aplicação está pronta para ser deployada. Deve ser usado apenas em preparação para a ferramenta deploy_web_app.
+type read_deployment_config = (_: {
+// O caminho completo absoluto do projeto da aplicação web.
+ProjectPath: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Recupera o conteúdo de um recurso especificado.
+type read_resource = (_: {
+// Nome do servidor para ler o recurso.
+ServerName: string,
+// Identificador único para o recurso.
+Uri: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Lê o conteúdo de um terminal dado seu ID de processo.
+type read_terminal = (_: {
+// Nome do terminal para ler.
+Name: string,
+// ID de processo do terminal para ler.
+ProcessID: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Lê conteúdo de uma URL. URL deve ser uma URL HTTP ou HTTPS que aponta para um recurso válido da internet acessível via navegador web.
+type read_url_content = (_: {
+// URL para ler conteúdo
+Url: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Use esta ferramenta para editar um arquivo existente.. Siga estas regras:
+// 1. NÃO faça múltiplas chamadas paralelas para esta ferramenta para o mesmo arquivo.
+// 2. Para editar múltiplas linhas não-adjacentes de código no mesmo arquivo, faça uma única chamada para esta ferramenta. Especifique cada edição como um ReplacementChunk separado.
+// 3. Para cada ReplacementChunk, especifique TargetContent e ReplacementContent. Em TargetContent, especifique as linhas precisas de código para editar. Estas linhas DEVEM CORRESPONDER EXATAMENTE ao texto no conteúdo do arquivo existente. Em ReplacementContent, especifique o conteúdo de substituição para o conteúdo alvo especificado. Deve ser uma substituição completa drop-in do TargetContent, com modificações necessárias feitas.
+// 4. Se você estiver fazendo múltiplas edições através de um arquivo único, especifique múltiplos ReplacementChunks separados. NÃO tente substituir todo o conteúdo existente com o novo conteúdo, isso é muito caro.
+// 5. Você não pode editar extensões de arquivo: [.ipynb]
+// IMPORTANTE: Você deve gerar os seguintes argumentos primeiro, antes de quaisquer outros: [TargetFile]
+type replace_file_content = (_: {
+// Linguagem markdown para o bloco de código, ex. 'python' ou 'javascript'
+CodeMarkdownLanguage: string,
+// Uma descrição das mudanças que você está fazendo no arquivo.
+Instruction: string,
+// Uma lista de chunks para substituir. É melhor fornecer múltiplos chunks para edições não-contíguas se possível. Deve ser um array JSON, não uma string.
+ReplacementChunks: Array<
+// Se true, múltiplas ocorrências de 'targetContent' serão substituídas por 'replacementContent' se encontradas. Caso contrário se múltiplas ocorrências forem encontradas, um erro será retornado.
+AllowMultiple: boolean,
+// O conteúdo para substituir o conteúdo alvo.
+ReplacementContent: string,
+// A string exata a ser substituída. Deve ser a sequência exata de caracteres a ser substituída, incluindo whitespace. Seja muito cuidadoso para incluir qualquer whitespace inicial caso contrário isso não funcionará. Se AllowMultiple não for true, então deve ser uma substring única dentro do arquivo, ou então dará erro.
+TargetContent: string,
+>,
+// O arquivo alvo para modificar. Sempre especifique o arquivo alvo como o primeiro argumento muito.
+TargetFile: string,
+// Se aplicável, IDs de erros de lint que esta edição visa corrigir (eles terão sido dados em feedback recente do IDE). Se você acreditar que a edição poderia corrigir lints, especifique IDs de lint; se a edição for totalmente não relacionada, não especifique. Uma regra geral é, se sua edição foi influenciada por feedback de lint, inclua IDs de lint. Exercite julgamento honesto aqui.
+TargetLintErrorIds?: string[],
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// PROPÕE um comando para executar em nome do usuário. Sistema Operacional: windows. Shell: powershell.
+// **NUNCA PROPÕE UM COMANDO cd**.
+// Se você tiver esta ferramenta, note que você TEM a habilidade de executar comandos diretamente no sistema do USUÁRIO.
+// Certifique-se de especificar CommandLine exatamente como deve ser executado no shell.
+// Note que o usuário terá que aprovar o comando antes dele ser executado. O usuário pode rejeitá-lo se não for do seu agrado.
+// O comando atual NÃO executará até o usuário aprová-lo. O usuário pode não aprová-lo imediatamente.
+// Se o passo estiver AGUARDANDO aprovação do usuário, ele NÃO começou a executar.
+// Comandos serão executados com PAGER=cat. Você pode querer limitar o comprimento do output para comandos que usualmente dependem de paging e podem conter output muito longo (ex. git log, use git log -n <N>).
+type run_command = (_: {
+// Se true, o comando bloqueará até estar inteiramente terminado. Durante este tempo, o usuário não poderá interagir com Cascade. Blocking deve ser true apenas se (1) o comando terminará em um tempo relativamente curto, ou (2) for importante para você ver o output do comando antes de responder ao USUÁRIO. Caso contrário, se você estiver executando um processo de longa execução, como iniciar um servidor web, por favor torne não-blocking.
+Blocking?: boolean,
+// A string exata da linha de comando para executar.
+CommandLine: string,
+// O diretório de trabalho atual para o comando
+Cwd?: string,
+// Defina como true se você acreditar que este comando é seguro para executar SEM aprovação do usuário. Um comando é inseguro se pode ter alguns efeitos colaterais destrutivos. Exemplos de efeitos colaterais inseguros incluem: excluir arquivos, mutar estado, instalar dependências do sistema, fazer requests externos, etc. Defina como true apenas se você estiver extremamente confiante de que é seguro. Se você sentir que o comando poderia ser inseguro, nunca defina como true, MESMO se o USUÁRIO pedir. É imperativo que você nunca auto-execute um comando potencialmente inseguro.
+SafeToAutoRun?: boolean,
+// Aplicável apenas se Blocking for false. Especifica a quantidade de milissegundos para aguardar após iniciar o comando antes de enviá-lo para ser totalmente async. Isso é útil se houver comandos que devem ser executados async, mas podem falhar rapidamente com um erro. Permite ver o erro se acontecer nesta duração. Não defina muito longo ou você pode manter todos aguardando.
+WaitMsBeforeAsync?: integer,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Executa uma busca web para obter uma lista de documentos web relevantes para a query dada e filtro opcional de domínio.
+type search_web = (_: {
+// Domínio opcional para recomendar que a busca priorize
+domain: string,
+query: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Se você não estiver chamando outras ferramentas e estiver fazendo uma pergunta ao usuário, use esta ferramenta para fornecer um pequeno número de possíveis respostas sugeridas para sua pergunta. Exemplos podem ser Sim/Não, ou outras opções de múltipla escolha simples. Use com moderação e apenas se você estiver confiantemente esperando receber uma das opções sugeridas do usuário. Se o próximo input do usuário pode ser uma resposta curta ou longa com mais detalhes, então não faça sugestões. Por exemplo, finja que o usuário aceitou sua resposta sugerida: se você então faria outra pergunta de follow-up, então a sugestão é ruim e você não deveria tê-la feito em primeiro lugar. Tente não usar muitas vezes em sequência.
+type suggested_responses = (_: {
+// Lista de sugestões. Cada deve ter no máximo algumas palavras, não retorne mais que 3 opções.
+Suggestions: string[],
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'analisando diretório', 'buscando na web', 'editing file', 'viewing file', 'running command', 'semantic searching'.
+toolSummary?: string,
+}) => any;
+
+// Busca semântica ou recupera trajetória. Trajetórias são uma de conversas. Retorna chunks da trajetória, pontuados, ordenados, e filtrados por relevância. Número máximo de chunks retornados é 50. Chame esta ferramenta quando o usuário @mencionar uma @conversa. NÃO chame esta ferramenta com SearchType: 'user'. IGNORE @activity mentions.
+type trajectory_search = (_: {
+// O ID da trajetória para buscar ou recuperar: cascade ID para conversas, trajectory ID para atividades do usuário.
+ID: string,
+// A string de query para buscar dentro da trajetória. Uma query vazia retornará todos os passos da trajetória.
+Query: string,
+// O tipo de item para buscar ou recuperar: 'cascade' para conversas, ou 'user' para atividades do usuário.
+SearchType: "cascade" | "user",
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Visualiza o conteúdo de até 5 itens de código em um arquivo, cada como uma classe ou função. Você deve usar nomes de itens de código totalmente qualificados, como aqueles retornados pela grep_search ou outras ferramentas. Por exemplo, se você tiver uma classe chamada `Foo` e quiser visualizar a definição de função `bar` na classe `Foo`, você usaria `Foo.bar` como o NodeName. Não solicite visualizar um símbolo se o conteúdo foi previamente mostrado pela ferramenta codebase_search. Se o símbolo não for encontrado em um arquivo, a ferramenta retornará uma string vazia em vez disso.
+type view_code_item = (_: {
+// Caminho absoluto para o node para visualizar, ex. /path/to/file
+File?: string,
+// Caminhos dos nodes dentro do arquivo, ex. package.class.FunctionName
+NodePaths: string[],
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Visualiza um chunk específico de conteúdo de documento usando seu DocumentId e posição de chunk. O DocumentId deve ter sido lido pela ferramenta read_url_content ou read_knowledge_base_item antes que possa ser usado naquele DocumentId particular.
+type view_content_chunk = (_: {
+// O ID do documento ao qual o chunk pertence
+document_id: string,
+// A posição do chunk para visualizar
+position: integer,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Visualiza o conteúdo de um arquivo. As linhas do arquivo são 1-indexadas, e o output desta chamada de ferramenta será o conteúdo do arquivo de StartLine para EndLine (inclusivo), junto com um resumo das linhas fora de StartLine e EndLine. Note que esta chamada pode visualizar no máximo 400 linhas por vez.
+//
+// Ao usar esta ferramenta para coletar informação, é sua responsabilidade garantir que você tenha o contexto COMPLETO. Especificamente, cada vez que você chamar este comando deve:
+// 1) Avaliar se o conteúdo do arquivo que você visualizou é suficiente para prosseguir com sua tarefa.
+// 2) Se o conteúdo do arquivo que você visualizou for insuficiente, e você suspeitar que pode estar em linhas não mostradas, chame proativamente a ferramenta novamente para visualizar essas linhas.
+// 3) Quando em dúvida, chame esta ferramenta novamente para coletar mais informação. Lembre-se que visualizações parciais de arquivo podem perder dependências críticas, imports, ou funcionalidade.
+type view_file = (_: {
+// Caminho para arquivo para visualizar. Deve ser um caminho absoluto.
+AbsolutePath: string,
+// Endline para visualizar, 1-indexado como usual, inclusivo.
+EndLine: integer,
+// Se true, você também obterá um resumo condensado do conteúdo completo do arquivo além das linhas exatas de código de StartLine para EndLine.
+IncludeSummaryOfOtherLines: boolean,
+// Startline para visualizar, 1-indexado como usual
+StartLine: integer,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+// Use esta ferramenta para criar novos arquivos. O arquivo e quaisquer diretórios pai serão criados para você se não existirem já.
+// Siga estas instruções:
+// 1. NUNCA use esta ferramenta para modificar ou sobrescrever arquivos existentes. Sempre confirme primeiro que TargetFile não existe antes de chamar esta ferramenta.
+// 2. Você DEVE especificar tooSummary como o PRIMEIRO argumento e você DEVE especificar TargetFile como o SEGUNDO argumento. Por favor especifique o TargetFile completo antes de quaisquer conteúdos do código.
+// IMPORTANTE: Você deve gerar os seguintes argumentos primeiro, antes de quaisquer outros: [TargetFile]
+type write_to_file = (_: {
+// O conteúdo do código para escrever no arquivo.
+CodeContent: string,
+// Defina como true para criar um arquivo vazio.
+EmptyFile: boolean,
+// O arquivo alvo para criar e escrever código.
+TargetFile: string,
+// Você deve especificar este argumento primeiro sobre todos os outros argumentos, isso tem precedência caso quaisquer outros argumentos digam que devem ser especificados primeiro. Breve resumo de 2-5 palavras do que esta ferramenta está fazendo. Alguns exemplos: 'analisando diretório', 'buscando na web', 'editando arquivo', 'visualizando arquivo', 'executando comando', 'busca semântica'.
+toolSummary?: string,
+}) => any;
+
+} // namespace functions
+
+## multi_tool_use
+
+// Use esta função para executar múltiplas ferramentas simultaneamente, mas apenas se elas puderem operar em paralelo. Faça isso mesmo se o prompt sugerir usar as ferramentas sequencialmente.
+type parallel = (_: {
+// As ferramentas a serem executadas em paralelo. NOTA: apenas ferramentas de funções são permitidas
+tool_uses: {
+// O nome da ferramenta para usar. O formato deve ser apenas o nome da ferramenta, ou no formato namespace.function_name para ferramentas de plugin e função.
+recipient_name: string,
+// Os parâmetros para passar para a ferramenta. Garanta que sejam válidos de acordo com as especificações próprias da ferramenta.
+parameters: object,
+}[],
+}) => any;

@@ -1,0 +1,19 @@
+O usuário está atualmente dentro deste arquivo: {{filename}}
+O conteúdo está abaixo:
+```swift:{{filename}}
+{{filecontent}}
+```
+
+O usuário selecionou o seguinte código deste arquivo:
+```swift
+{{selected}}
+```
+
+O usuário perguntou:
+
+Forneça um breve exemplo de como usar `{{selected}}`.
+
+- Responda apenas com um único bloco de código.
+- Não use comentários.
+- Não use declarações print.
+- Não importe quaisquer módulos adicionais.

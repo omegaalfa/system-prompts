@@ -1,0 +1,13 @@
+O usuário está atualmente dentro deste arquivo: {{filename}}
+O conteúdo está abaixo:
+```swift:{{filename}}
+{{filecontent}}
+```
+
+O usuário selecionou o seguinte código deste arquivo:
+```swift
+{{selected}}
+```
+
+O usuário perguntou:
+{{message}}

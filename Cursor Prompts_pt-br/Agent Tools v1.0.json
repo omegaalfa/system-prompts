@@ -1,0 +1,327 @@
+[
+    {
+        "description": "Encontre snippets de código da codebase mais relevantes para a query de busca.\nEsta é uma ferramenta de busca semântica, então a query deve perguntar por algo semanticamente matching o que é necessário.\nSe fizer sentido buscar apenas em diretórios particulares, por favor especifique-os no campo target_directories.\nA menos que haja uma razão clara para usar sua própria query de busca, por favor apenas reutilize a query exata do usuário com suas palavras.\nSuas palavras exatas/frase podem frequentemente ser úteis para a query de busca semântica. Manter o mesmo formato de pergunta exato também pode ser útil.",
+        "name": "codebase_search",
+        "parameters": {
+            "properties": {
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que esta ferramenta está sendo usada, e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "query": {
+                    "description": "A query de busca para encontrar código relevante. Você deve reutilizar a query/mensagem mais recente exata do usuário com suas palavras a menos que haja uma razão clara para não.",
+                    "type": "string"
+                },
+                "target_directories": {
+                    "description": "Padrões glob para diretórios para buscar",
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "query"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Leia o conteúdo de um arquivo. a saída desta chamada de ferramenta será o conteúdo do arquivo indexado em 1 de start_line_one_indexed a end_line_one_indexed_inclusive, junto com um resumo das linhas fora de start_line_one_indexed e end_line_one_indexed_inclusive.\nNote que esta chamada pode ver no máximo 250 linhas de uma vez e 200 linhas mínimo.\n\nAo usar esta ferramenta para reunir informação, é sua responsabilidade garantir que você tenha o CONTEXTO COMPLETO. Especificamente, cada vez que você chamar este comando você deve:\n1) Avaliar se o conteúdo que você visualizou é suficiente para prosseguir com sua tarefa.\n2) Anotar onde há linhas não mostradas.\n3) Se o conteúdo do arquivo que você visualizou for insuficiente, e você suspeitar que pode estar em linhas não mostradas, proativamente chame a ferramenta novamente para visualizar essas linhas.\n4) Quando incerto, chame esta ferramenta novamente para reunir mais informação. Lembre-se que visualizações parciais de arquivo podem perder dependências críticas, imports, ou funcionalidade.\n\nEm alguns casos, se ler um intervalo de linhas não for suficiente, você pode escolher ler o arquivo inteiro.\nLer arquivos inteiros é frequentemente dispendioso e lento, especialmente para arquivos grandes (i.e. mais de algumas centenas de linhas). Então você deve usar esta opção parcamente.\nLer o arquivo inteiro não é permitido na maioria dos casos. Você só é permitido ler o arquivo inteiro se ele foi editado ou anexado manualmente à conversa pelo usuário.",
+        "name": "read_file",
+        "parameters": {
+            "properties": {
+                "end_line_one_indexed_inclusive": {
+                    "description": "O número da linha indexada em 1 para terminar a leitura (inclusive).",
+                    "type": "integer"
+                },
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que esta ferramenta está sendo usada, e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "should_read_entire_file": {
+                    "description": "Se deve ler o arquivo inteiro. Padrão para false.",
+                    "type": "boolean"
+                },
+                "start_line_one_indexed": {
+                    "description": "O número da linha indexada em 1 para começar a ler (inclusive).",
+                    "type": "integer"
+                },
+                "target_file": {
+                    "description": "O caminho do arquivo para ler. Você pode usar um caminho relativo no workspace ou absoluto. Se um caminho absoluto for fornecido, será preservado como está.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "target_file",
+                "should_read_entire_file",
+                "start_line_one_indexed",
+                "end_line_one_indexed_inclusive"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "PROPONHA um comando para executar em nome do usuário.\nSe você tem esta ferramenta, note que você TEM a habilidade de executar comandos diretamente no sistema do USUÁRIO.\nNote que o usuário terá que aprovar o comando antes que seja executado.\nO usuário pode rejeitá-lo se não for do seu agrado, ou pode modificar o comando antes de aprová-lo.  Se eles mudarem, leve essas mudanças em conta.\nO comando real NÃO executará até o usuário aprová-lo. O usuário pode não aprová-lo imediatamente. NÃO assuma que o comando começou a executar.\nSe o passo estiver ESPERANDO por aprovação do usuário, ele NÃO começou a executar.\nAo usar estas ferramentas, adira às seguintes diretrizes:\n1. Baseado no conteúdo da conversa, você será informado se você está no mesmo shell de um passo anterior ou um diferente.\n2. Se em um novo shell, você deve `cd` para o diretório apropriado e fazer setup necessário além de executar o comando.\n3. Se no mesmo shell, OLHE NO HISTÓRICO DE CHAT para seu diretório de trabalho atual.\n4. Para QUAISQUER comandos que requereriam interação do usuário, ASSUMA QUE O USUÁRIO NÃO ESTÁ DISPONÍVEL PARA INTERAGIR e PASSE AS FLAGS NÃO-INTERATIVAS (ex.: --yes para npx).\n5. Se o comando usaria um pager, anexe ` | cat` ao comando.\n6. Para comandos que são longos em execução/esperados para executar indefinidamente até interrupção, por favor execute-os em background. Para executar jobs em background, defina `is_background` para true em vez de mudar os detalhes do comando.\n7. Não inclua quaisquer newlines no comando.",
+        "name": "run_terminal_cmd",
+        "parameters": {
+            "properties": {
+                "command": {
+                    "description": "O comando terminal para executar",
+                    "type": "string"
+                },
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que este comando precisa ser executado e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "is_background": {
+                    "description": "Se o comando deve ser executado em background",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "command",
+                "is_background"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Liste o conteúdo de um diretório. A ferramenta rápida para usar para descoberta, antes de usar ferramentas mais direcionadas como busca semântica ou leitura de arquivo. Útil para tentar entender a estrutura de arquivo antes de mergulhar mais fundo em arquivos específicos. Pode ser usado para explorar a codebase.",
+        "name": "list_dir",
+        "parameters": {
+            "properties": {
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que esta ferramenta está sendo usada, e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "relative_workspace_path": {
+                    "description": "Caminho para listar conteúdo de, relativo à raiz do workspace.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "relative_workspace_path"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "### Instruções:\nEsta é melhor para encontrar matches de texto exato ou padrões regex.\nEsta é preferida sobre busca semântica quando sabemos o símbolo/função exato/etc. para buscar em algum conjunto de diretórios/tipos de arquivo.\n\nUse esta ferramenta para executar buscas regex exatas rápidas sobre arquivos de texto usando o engine `ripgrep`.\nPara evitar output opressivo, os resultados são cortados em 50 matches.\nUse os padrões include ou exclude para filtrar o escopo de busca por tipo de arquivo ou caminhos específicos.\n\n- Sempre escape caracteres regex especiais: ( ) [ ] { } + * ? ^ $ | . \\\n- Use `\\` para escapar qualquer destes caracteres quando aparecerem em sua string de busca.\n- NÃO execute matches fuzzy ou semânticos.\n- Retorne apenas uma string de padrão regex válida.\n\n### Exemplos:\n| Literal               | Padrão Regex            |\n|-----------------------|--------------------------|\n| function(             | function\\(              |\n| value[index]          | value\\[index\\]         |\n| file.txt               | file\\.txt                |\n| user|admin            | user\\|admin             |\n| path\\to\\file         | path\\\\to\\\\file        |\n| hello world           | hello world              |\n| foo\\(bar\\)          | foo\\\\(bar\\\\)         |",
+        "name": "grep_search",
+        "parameters": {
+            "properties": {
+                "case_sensitive": {
+                    "description": "Se a busca deve ser case sensitive",
+                    "type": "boolean"
+                },
+                "exclude_pattern": {
+                    "description": "Padrão glob para arquivos a excluir",
+                    "type": "string"
+                },
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que esta ferramenta está sendo usada, e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "include_pattern": {
+                    "description": "Padrão glob para arquivos a incluir (ex.: '*.ts' para arquivos TypeScript)",
+                    "type": "string"
+                },
+                "query": {
+                    "description": "O padrão regex para buscar",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "query"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Use esta ferramenta para propor uma edição para um arquivo existente ou criar um novo arquivo.\n\nIsso será lido por um modelo menos inteligente, que aplicará rapidamente a edição. Você deve tornar claro qual é a edição, enquanto minimiza o código inalterado que você escreve.\nAo escrever a edição, especifique cada edição em sequência, com o comentário especial `// ... existing code ...` para representar código inalterado entre linhas editadas.\n\nPor exemplo:\n\n```\n// ... existing code ...\nFIRST_EDIT\n// ... existing code ...\nSECOND_EDIT\n// ... existing code ...\nTHIRD_EDIT\n// ... existing code ...\n```\n\nVocê ainda deve tender a repetir o mínimo possível de linhas do arquivo original para transmitir a mudança.\nMas, cada edição deve conter contexto suficiente de linhas inalteradas ao redor do código que você está editando para resolver ambiguidade.\nNÃO omita spans de código pré-existente (ou comentários) sem usar o comentário `// ... existing code ...` para indicar sua ausência. Se você omitir o comentário de código existente, o modelo pode inadvertidamente deletar essas linhas.\nGaranta que seja claro qual deve ser a edição, e onde deve ser aplicada.\nPara criar um novo arquivo, simplesmente especifique o conteúdo do arquivo no campo `code_edit`.\n\nVocê deve especificar os seguintes argumentos antes dos outros: [target_file]\n\nSEMPRE faça todas as edições para um arquivo em um único edit_file em vez de múltiplas chamadas edit_file para o mesmo arquivo. O modelo apply pode lidar com muitas edições distintas de uma vez. Ao editar múltiplos arquivos, SEMPRE faça chamadas edit_file paralelas.",
+        "name": "edit_file",
+        "parameters": {
+            "properties": {
+                "code_edit": {
+                    "description": "Especifique APENAS as linhas precisas de código que você deseja editar. **NUNCA especifique ou escreva código inalterado**. Em vez disso, represente todo código inalterado usando o comentário da linguagem que você está editando - exemplo: `// ... existing code ...`",
+                    "type": "string"
+                },
+                "instructions": {
+                    "description": "Uma instrução de sentença única descrevendo o que você vai fazer para a edição esboçada. Isso é usado para assistir o modelo menos inteligente em aplicar a edição. Por favor use a primeira pessoa para descrever o que eu vou fazer. Não repita o que eu disse anteriormente em mensagens normais. E use para desambiguar incerteza na edição.",
+                    "type": "string"
+                },
+                "target_file": {
+                    "description": "O arquivo alvo para modificar. Sempre especifique o arquivo alvo como o primeiro argumento. Você pode usar um caminho relativo no workspace ou absoluto. Se um caminho absoluto for fornecido, será preservado como está.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "target_file",
+                "instructions",
+                "code_edit"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Use esta ferramenta para propor uma operação de busca e substituição em um arquivo existente.\n\nA ferramenta substituirá UMA ocorrência de old_string com new_string no arquivo especificado.\n\nREQUISITOS CRÍTICOS PARA USAR ESTA FERRAMENTA:\n\n1. UNICIDADE: O old_string DEVE identificar unicamente a instância específica que você quer mudar. Isso significa:\n   - Incluir PELO MENOS 3-5 linhas de contexto ANTES do ponto de mudança\n   - Incluir PELO MENOS 3-5 linhas de contexto APÓS o ponto de mudança\n   - Incluir todo whitespace, indentação, e código circundante exatamente como aparece no arquivo\n\n2. INSTÂNCIA ÚNICA: Esta ferramenta pode mudar apenas UMA instância de uma vez. Se você precisar mudar múltiplas instâncias:\n   - Faça chamadas separadas para esta ferramenta para cada instância\n   - Cada chamada deve identificar unicamente sua instância específica usando contexto extenso\n\n3. VERIFICAÇÃO: Antes de usar esta ferramenta:\n   - Se múltiplas instâncias existirem, reúna contexto suficiente para identificar unicamente cada uma\n   - Planeje chamadas de ferramenta separadas para cada instância\n",
+        "name": "search_replace",
+        "parameters": {
+            "properties": {
+                "file_path": {
+                    "description": "O caminho para o arquivo que você quer buscar e substituir. Você pode usar um caminho relativo no workspace ou absoluto. Se um caminho absoluto for fornecido, será preservado como está.",
+                    "type": "string"
+                },
+                "new_string": {
+                    "description": "O texto editado para substituir o old_string (deve ser diferente do old_string)",
+                    "type": "string"
+                },
+                "old_string": {
+                    "description": "O texto para substituir (deve ser único dentro do arquivo, e deve match o conteúdo do arquivo exatamente, incluindo todo whitespace e indentação)",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "file_path",
+                "old_string",
+                "new_string"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Busca rápida de arquivo baseada em matching fuzzy contra caminho de arquivo. Use se você sabe parte do caminho do arquivo mas não sabe onde está localizado exatamente. Resposta será cortada para 10 resultados. Torne sua query mais específica se precisar filtrar resultados ainda mais.",
+        "name": "file_search",
+        "parameters": {
+            "properties": {
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que esta ferramenta está sendo usada, e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "query": {
+                    "description": "Nome de arquivo fuzzy para buscar",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "query",
+                "explanation"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Deleta um arquivo no caminho especificado. A operação falhará graciosamente se:\n    - O arquivo não existir\n    - A operação for rejeitada por razões de segurança\n    - O arquivo não puder ser deletado",
+        "name": "delete_file",
+        "parameters": {
+            "properties": {
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que esta ferramenta está sendo usada, e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "target_file": {
+                    "description": "O caminho do arquivo para deletar, relativo à raiz do workspace.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "target_file"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Chama um modelo mais inteligente para aplicar a última edição ao arquivo especificado.\nUse esta ferramenta imediatamente após o resultado de uma chamada de ferramenta edit_file APENAS SE o diff não for o que você esperava, indicando que o modelo aplicando as mudanças não foi inteligente o suficiente para seguir suas instruções.",
+        "name": "reapply",
+        "parameters": {
+            "properties": {
+                "target_file": {
+                    "description": "O caminho relativo para o arquivo para reaplicar a última edição. Você pode usar um caminho relativo no workspace ou absoluto. Se um caminho absoluto for fornecido, será preservado como está.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "target_file"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Busque na web por informações em tempo real sobre qualquer tópico. Use esta ferramenta quando você precisar de informações atualizadas que podem não estar disponíveis em seus dados de treinamento, ou quando você precisar verificar fatos atuais. Os resultados de busca incluirão snippets relevantes e URLs de páginas web. Isso é particularmente útil para perguntas sobre eventos atuais, atualizações tecnológicas, ou qualquer tópico que requeira informação recente.",
+        "name": "web_search",
+        "parameters": {
+            "properties": {
+                "explanation": {
+                    "description": "Uma sentença explicação sobre por que esta ferramenta está sendo usada, e como contribui para o objetivo.",
+                    "type": "string"
+                },
+                "search_term": {
+                    "description": "O termo de busca para procurar na web. Seja específico e inclua palavras-chave relevantes para melhores resultados. Para queries técnicas, inclua números de versão ou datas se relevante.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "search_term"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Cria um diagrama Mermaid que será renderizado na UI do chat. Forneça a string DSL Mermaid bruta via `content`.\nUse <br/> para quebras de linha, sempre envolva textos/tags de diagrama em aspas duplas, não use cores customizadas, não use :::, e não use recursos beta.\nO diagrama será pré-renderizado para validar sintaxe - se houver quaisquer erros de sintaxe Mermaid, eles serão retornados na resposta para que você possa corrigi-los.",
+        "name": "create_diagram",
+        "parameters": {
+            "properties": {
+                "content": {
+                    "description": "Definição de diagrama Mermaid bruto (ex.: 'graph TD; A-->B;').",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "content"
+            ],
+            "type": "object"
+        }
+    },
+    {
+        "description": "Use esta ferramenta para editar uma célula de notebook jupyter. Use APENAS esta ferramenta para editar notebooks.\n\nEsta ferramenta suporta editar células existentes e criar novas células:\n\t- Se você precisar editar uma célula existente, defina 'is_new_cell' para false e forneça 'old_string' e 'new_string'.\n\t\t-- A ferramenta substituirá UMA ocorrência de 'old_string' com 'new_string' na célula especificada.\n\t- Se você precisar criar uma nova célula, defina 'is_new_cell' para true e forneça 'new_string' (e mantenha 'old_string' vazio).\n\t- É crítico que você defina a flag 'is_new_cell' corretamente!\n\t- Esta ferramenta NÃO suporta deleção de célula, mas você pode deletar o conteúdo de uma célula passando uma string vazia como 'new_string'.\n\nOutros requisitos:\n\t- Índices de célula são 0-based.\n\t- 'old_string' e 'new_string' devem ser conteúdo de célula válido, i.e. SEM qualquer sintaxe JSON que arquivos de notebook usam under the hood.\n\t- O old_string DEVE identificar unicamente a instância específica que você quer mudar. Isso significa:\n\t\t-- Incluir PELO MENOS 3-5 linhas de contexto ANTES do ponto de mudança\n\t\t-- Incluir PELO MENOS 3-5 linhas de contexto APÓS o ponto de mudança\n\t- Esta ferramenta pode mudar apenas UMA instância de uma vez. Se você precisar mudar múltiplas instâncias:\n\t\t-- Faça chamadas separadas para esta ferramenta para cada instância\n\t\t-- Cada chamada deve identificar unicamente sua instância específica usando contexto extenso\n\t- Esta ferramenta pode salvar células markdown como células \"raw\". Não tente mudar isso, está fine. Precisamos disso para exibir o diff adequadamente.\n\t- Se você precisar criar um novo notebook, apenas defina 'is_new_cell' para true e cell_idx para 0.\n\t- SEMPRE gere argumentos na seguinte ordem: target_notebook, cell_idx, is_new_cell, cell_language, old_string, new_string.\n\t- Prefira editar células existentes sobre criar novas!\n",
+        "name": "edit_notebook",
+        "parameters": {
+            "properties": {
+                "cell_idx": {
+                    "description": "O índice da célula para editar (0-based)",
+                    "type": "number"
+                },
+                "cell_language": {
+                    "description": "A linguagem da célula para editar. Deve ser ESTRITAMENTE uma destas: 'python', 'markdown', 'javascript', 'typescript', 'r', 'sql', 'shell', 'raw' ou 'other'.",
+                    "type": "string"
+                },
+                "is_new_cell": {
+                    "description": "Se true, uma nova célula será criada no índice de célula especificado. Se false, a célula no índice de célula especificado será editada.",
+                    "type": "boolean"
+                },
+                "new_string": {
+                    "description": "O texto editado para substituir o old_string ou o conteúdo para a nova célula.",
+                    "type": "string"
+                },
+                "old_string": {
+                    "description": "O texto para substituir (deve ser único dentro da célula, e deve match o conteúdo da célula exatamente, incluindo todo whitespace e indentação).",
+                    "type": "string"
+                },
+                "target_notebook": {
+                    "description": "O caminho para o arquivo de notebook que você quer editar. Você pode usar um caminho relativo no workspace ou absoluto. Se um caminho absoluto for fornecido, será preservado como está.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "target_notebook",
+                "cell_idx",
+                "is_new_cell",
+                "cell_language",
+                "old_string",
+                "new_string"
+            ],
+            "type": "object"
+        }
+    }
+]

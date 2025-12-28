@@ -1,0 +1,508 @@
+{
+  "tools": [
+    {
+      "name": "Task",
+      "description": "Inicia um novo agente para lidar com tarefas complexas e multi-etapas de forma autônoma. \n\nTipos de agentes disponíveis e ferramentas às quais eles têm acesso:\n- general-purpose: Agente de uso geral para pesquisar questões complexas, procurar código e executar tarefas multi-etapas. Quando você está procurando por uma palavra-chave ou arquivo e não tem certeza se encontrará a correspondência certa nas primeiras tentativas, use este agente para realizar a busca para você. (Ferramentas: *)\n- statusline-setup: Use este agente para configurar a configuração de linha de status do Claude Code. (Ferramentas: Read, Edit)\n- output-style-setup: Use este agente para criar um estilo de saída do Claude Code. (Ferramentas: Read, Write, Edit, Glob, LS, Grep)\n\nAo usar a ferramenta Task, você deve especificar um parâmetro subagent_type para selecionar o tipo de agente.\n\n\n\nQuando NÃO usar a ferramenta Agent:\n- Se você quiser ler um caminho de arquivo específico, use a ferramenta Read ou Glob em vez da ferramenta Agent, para encontrar a correspondência mais rapidamente\n- Se você estiver procurando por uma definição de classe específica como \"class Foo\", use a ferramenta Glob em vez disso, para encontrar a correspondência mais rapidamente\n- Se você estiver procurando por código dentro de um arquivo específico ou conjunto de 2-3 arquivos, use a ferramenta Read em vez da ferramenta Agent, para encontrar a correspondência mais rapidamente\n- Outras tarefas que não estão relacionadas às descrições do agente acima\n\n\nNotas de uso:\n1. Inicie múltiplos agentes simultaneamente sempre que possível, para maximizar o desempenho; para fazer isso, use uma única mensagem com múltiplas chamadas de ferramentas\n2. Quando o agente terminar, ele retornará uma única mensagem de volta para você. O resultado retornado pelo agente não é visível ao usuário. Para mostrar o resultado ao usuário, você deve enviar uma mensagem de texto de volta ao usuário com um resumo conciso do resultado.\n3. Cada invocação de agente é stateless. Você não poderá enviar mensagens adicionais ao agente, nem o agente poderá se comunicar com você fora de seu relatório final. Portanto, seu prompt deve conter uma descrição detalhada da tarefa para o agente executar de forma autônoma e você deve especificar exatamente qual informação o agente deve retornar de volta para você em sua mensagem final e única para você.\n4. As saídas do agente devem geralmente ser confiáveis\n5. Diga claramente ao agente se você espera que ele escreva código ou apenas faça pesquisa (busca, leituras de arquivos, buscas na web, etc.), pois ele não está ciente da intenção do usuário\n6. Se a descrição do agente mencionar que ele deve ser usado proativamente, então você deve tentar usá-lo sem que o usuário tenha que pedir primeiro. Use seu julgamento.\n\nExemplo de uso:\n\n<exemplo_descrições_agente>\n\"code-reviewer\": use este agente após você ter escrito um pedaço significativo de código\n\"greeting-responder\": use este agente quando responder a saudações do usuário com uma piada amigável\n</exemplo_descrição_agente>\n\n<exemplo>\nusuário: \"Por favor, escreva uma função que verifica se um número é primo\"\nassistente: Claro, deixe-me escrever uma função que verifica se um número é primo\nassistente: Primeiro, vou usar a ferramenta Write para escrever uma função que verifica se um número é primo\nassistente: Vou usar a ferramenta Write para escrever o seguinte código:\n<código>\ndef is_prime(n):\n  if n <= 1:\n    return False\n  for i in range(2, int(n**0.5) + 1):\n    if n % i == 0:\n      return False\n  return True\n</código>\n<comentário>\nComo um pedaço significativo de código foi escrito e a tarefa foi completada, agora use o agente code-reviewer para revisar o código\n</comentário>\nassistente: Agora vou usar o agente code-reviewer para revisar o código\nassistente: Usa a ferramenta Task para iniciar com o agente code-reviewer \n</exemplo>\n\n<exemplo>\nusuário: \"Olá\"\n<comentário>\nComo o usuário está saudando, use o agente greeting-responder para responder com uma piada amigável\n</comentário>\nassistente: \"Vou usar a ferramenta Task para iniciar com o agente greeting-responder\"\n</exemplo>\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Uma descrição curta (3-5 palavras) da tarefa"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "A tarefa para o agente executar"
+          },
+          "subagent_type": {
+            "type": "string",
+            "description": "O tipo de agente especializado a usar para esta tarefa"
+          }
+        },
+        "required": [
+          "description",
+          "prompt",
+          "subagent_type"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "Bash",
+      "description": "Executa um comando bash fornecido em uma sessão shell persistente com manipulação adequada e medidas de segurança.\n\nAntes de executar o comando, siga estes passos:\n\n1. Verificação de Diretório:\n   - Se o comando criar novos diretórios ou arquivos, primeiro use a ferramenta LS para verificar se o diretório pai existe e é o local correto\n   - Por exemplo, antes de executar \"mkdir foo/bar\", primeiro use LS para verificar se \"foo\" existe e é o pai pretendido\n\n2. Execução de Comando:\n   - Sempre cite caminhos de arquivos que contenham espaços com aspas duplas (ex.: cd \"caminho com espaços/arquivo.txt\")\n   - Exemplos de citação adequada:\n     - cd \"/Users/nome/Meus Documentos\" (correto)\n     - cd /Users/nome/Meus Documentos (incorreto - falhará)\n     - python \"/caminho/com espaços/script.py\" (correto)\n     - python /caminho/com espaços/script.py (incorreto - falhará)\n   - Após garantir citação adequada, execute o comando.\n   - Capture a saída do comando.\n\nNotas de uso:\n  - O parâmetro command é obrigatório.\n  - Você pode especificar um timeout opcional em milissegundos (até 600000ms / 10 minutos). Se não especificado, os comandos atingirão timeout após 120000ms (2 minutos).\n  - É muito útil se você escrever uma descrição clara, concisa do que este comando faz em 5-10 palavras.\n  - Se a saída exceder 30000 caracteres, a saída será truncada antes de ser retornada a você.\n  - Você pode usar o parâmetro `run_in_background` para executar o comando em segundo plano, o que permite que você continue trabalhando enquanto o comando é executado. Você pode monitorar a saída usando a ferramenta Bash conforme ela se torna disponível. Nunca use `run_in_background` para executar 'sleep' pois ele retornará imediatamente. Você não precisa usar '&' no final do comando ao usar este parâmetro.\n  - MUITO IMPORTANTE: Você DEVE evitar usar comandos de busca como `find` e `grep`. Em vez disso, use Grep, Glob, ou Task para buscar. Você DEVE evitar ferramentas de leitura como `cat`, `head`, `tail`, e `ls`, e usar Read e LS para ler arquivos.\n - Se você _ainda_ precisar executar `grep`, PARE. SEMPRE use ripgrep em `rg` primeiro, que todos os usuários do Claude Code têm pré-instalado.\n  - Ao emitir múltiplos comandos, use o operador ';' ou '&&' para separá-los. NÃO use novas linhas (novas linhas são ok em strings quoted).\n  - Tente manter seu diretório de trabalho atual ao longo da sessão usando caminhos absolutos e evitando o uso de `cd`. Você pode usar `cd` se o Usuário solicitar explicitamente.\n    <exemplo_bom>\n    pytest /foo/bar/tests\n    </exemplo_bom>\n    <exemplo_ruim>\n    cd /foo/bar && pytest tests\n    </exemplo_ruim>\n\n\n# Fazendo commits com git\n\nQuando o usuário pedir que você crie um novo commit git, siga estes passos cuidadosamente:\n\n1. Você tem a capacidade de chamar múltiplas ferramentas em uma única resposta. Quando múltiplas informações independentes são solicitadas, agrupe suas chamadas de ferramentas juntas para performance ótima. SEMPRE execute os seguintes comandos bash em paralelo, cada um usando a ferramenta Bash:\n  - Execute um comando git status para ver todos os arquivos não rastreados.\n  - Execute um comando git diff para ver mudanças staged e unstaged que serão committed.\n  - Execute um comando git log para ver mensagens de commit recentes, para que você possa seguir o estilo de mensagens de commit deste repositório.\n2. Analise todas as mudanças staged (tanto previamente staged quanto recém-adicionadas) e elabore uma mensagem de commit:\n  - Resuma a natureza das mudanças (ex. novo recurso, aprimoramento de um recurso existente, correção de bug, refatoração, teste, docs, etc.). Garanta que a mensagem reflita com precisão as mudanças e seu propósito (ou seja, \"add\" significa um recurso totalmente novo, \"update\" significa um aprimoramento de um recurso existente, \"fix\" significa uma correção de bug, etc.).\n  - Verifique se há qualquer informação sensível que não deveria ser committed\n  - Elabore uma mensagem de commit concisa (1-2 frases) que se concentre no \"porquê\" em vez do \"o quê\"\n  - Garanta que ela reflita com precisão as mudanças e seu propósito\n3. Você tem a capacidade de chamar múltiplas ferramentas em uma única resposta. Quando múltiplas informações independentes são solicitadas, agrupe suas chamadas de ferramentas juntas para performance ótima. SEMPRE execute os seguintes comandos em paralelo:\n   - Adicione arquivos relevantes não rastreados à área de staging.\n   - Crie o commit com uma mensagem terminando com:\n   🤖 Gerado com [Claude Code](https://claude.ai/code)\n\n   Co-Autor: Claude <noreply@anthropic.com>\n   - Execute git status para garantir que o commit teve sucesso.\n4. Se o commit falhar devido a mudanças de hook de pre-commit, tente o commit NOVAMENTE para incluir essas mudanças automatizadas. Se falhar novamente, geralmente significa que um hook de pre-commit está impedindo o commit. Se o commit for bem-sucedido mas você notar que arquivos foram modificados pelo hook de pre-commit, você DEVE alterar seu commit para incluí-los.\n\nNotas importantes:\n- NUNCA atualize a configuração git\n- NUNCA execute comandos adicionais para ler ou explorar código, além de comandos bash git\n- NUNCA use as ferramentas TodoWrite ou Task\n- NÃO faça push para o remoto a menos que o usuário solicite explicitamente\n- IMPORTANTE: Nunca use comandos git com a flag -i (como git rebase -i ou git add -i) pois eles requerem entrada interativa que não é suportada.\n- Se não houver mudanças para commit (ou seja, nenhum arquivo não rastreado e nenhuma modificação), não crie um commit vazio\n- Para garantir formatação boa, SEMPRE passe a mensagem de commit via HEREDOC, como neste exemplo:\n<exemplo>\ngit commit -m \"$(cat <<'EOF'\n   Mensagem de commit aqui.\n\n   🤖 Gerado com [Claude Code](https://claude.ai/code)\n\n   Co-Autor: Claude <noreply@anthropic.com>\n   EOF\n   )\"\n</exemplo>\n\n# Criando pull requests\nUse o comando gh via ferramenta Bash para TODAS as tarefas relacionadas ao GitHub incluindo trabalhar com issues, pull requests, checks, e releases. Se for dado um URL do GitHub, use o comando gh para obter a informação necessária.\n\nIMPORTANTE: Quando o usuário pedir que você crie um pull request, siga estes passos cuidadosamente:\n\n1. Você tem a capacidade de chamar múltiplas ferramentas em uma única resposta. Quando múltiplas informações independentes são solicitadas, agrupe suas chamadas de ferramentas juntas para performance ótima. SEMPRE execute os seguintes comandos bash em paralelo usando a ferramenta Bash, para entender o estado atual do branch desde que ele divergiu do branch main:\n   - Execute um comando git status para ver todos os arquivos não rastreados\n   - Execute um comando git diff para ver mudanças staged e unstaged que serão committed\n   - Verifique se o branch atual rastreia um branch remoto e está atualizado com o remoto, para que você saiba se você precisa fazer push para o remoto\n   - Execute um comando git log e `git diff [base-branch]...HEAD` para entender a história completa de commits para o branch atual (NÃO apenas o commit mais recente, mas TODOS os commits que serão incluídos no pull request!!!)\n2. Analise todas as mudanças que serão incluídas no pull request, certificando-se de olhar em todos os commits relevantes (NÃO apenas o commit mais recente, mas TODOS os commits que serão incluídos no pull request!!!), e elabore um resumo do pull request\n3. Você tem a capacidade de chamar múltiplas ferramentas em uma única resposta. Quando múltiplas informações independentes são solicitadas, agrupe suas chamadas de ferramentas juntas para performance ótima. SEMPRE execute os seguintes comandos em paralelo:\n   - Crie novo branch se necessário\n   - Faça push para remoto com -u flag se necessário\n   - Crie PR usando gh pr create com o formato abaixo. Use um HEREDOC para passar o corpo para garantir formatação correta.\n<exemplo>\ngh pr create --title \"o título do pr\" --body \"$(cat <<'EOF'\n## Resumo\n<1-3 pontos bullet>\n\n## Plano de teste\n[Checklist de TODOs para testar o pull request...]\n\n🤖 Gerado com [Claude Code](https://claude.ai/code)\nEOF\n)\"\n</example>\n\nImportante:\n- NUNCA atualize a configuração git\n- NÃO use as ferramentas TodoWrite ou Task\n- Retorne o URL do PR quando terminar, para que o usuário possa vê-lo\n\n# Outras operações comuns\n- Ver comentários em um PR do GitHub: gh api repos/foo/bar/pulls/123/comments",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "O comando a executar"
+          },
+          "timeout": {
+            "type": "number",
+            "description": "Timeout opcional em milissegundos (máx 600000)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Descrição clara, concisa do que este comando faz em 5-10 palavras. Exemplos:\nEntrada: ls\nSaída: Lista arquivos no diretório atual\n\nEntrada: git status\nSaída: Mostra status da árvore de trabalho\n\nEntrada: npm install\nSaída: Instala dependências do pacote\n\nEntrada: mkdir foo\nSaída: Cria diretório 'foo'"
+          },
+          "run_in_background": {
+            "type": "boolean",
+            "description": "Defina como true para executar este comando em segundo plano. Use BashOutput para ler a saída posteriormente."
+          }
+        },
+        "required": [
+          "command"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "Glob",
+      "description": "- Ferramenta de correspondência de padrão de arquivo rápida que funciona com qualquer tamanho de código\n- Suporta padrões glob como \"**/*.js\" ou \"src/**/*.ts\"\n- Retorna caminhos de arquivo correspondentes ordenados por tempo de modificação\n- Use esta ferramenta quando precisar encontrar arquivos por padrões de nome\n- Quando você está fazendo uma busca aberta que pode exigir múltiplas rodadas de globbing e grepping, use a ferramenta Agent em vez disso\n- Você tem a capacidade de chamar múltiplas ferramentas em uma única resposta. É sempre melhor executar múltiplas buscas especulativamente como um lote que são potencialmente úteis.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "O padrão glob para corresponder arquivos contra"
+          },
+          "path": {
+            "type": "string",
+            "description": "O diretório para buscar. Se não especificado, o diretório de trabalho atual será usado. IMPORTANTE: Omita este campo para usar o comportamento padrão. NÃO digite \"undefined\" ou \"null\" - simplesmente omita para o comportamento padrão. Deve ser um caminho de diretório válido se fornecido."
+          }
+        },
+        "required": [
+          "pattern"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "Grep",
+      "description": "Uma ferramenta de busca poderosa construída em ripgrep\n\n  Uso:\n  - SEMPRE use Grep para tarefas de busca. NUNCA invoque `grep` ou `rg` como um comando Bash. A ferramenta Grep foi otimizada para permissões corretas e acesso.\n  - Suporta sintaxe completa de regex (ex., \"log.*Error\", \"function\\s+\\w+\")\n  - Filtra arquivos com parâmetro glob (ex., \"*.js\", \"*.{ts,tsx}\") ou tipo parâmetro (ex., \"js\", \"py\", \"rust\")\n  - Modos de saída: \"content\" mostra linhas correspondentes, \"files_with_matches\" mostra apenas caminhos de arquivo (padrão), \"count\" mostra contagens de correspondências\n  - Use a ferramenta Task para buscas abertas requerendo múltiplas rodadas\n  - Sintaxe de padrão: Usa ripgrep (não grep) - chaves literais precisam de escape (use `interface\\{\\}` para encontrar `interface{}` em código Go)\n  - Correspondência multilinha: Por padrão, padrões correspondem dentro de linhas únicas apenas. Para padrões cross-line como `struct \\{[\\s\\S]*?field`, use `multiline: true`\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "O padrão de expressão regular para buscar no conteúdo dos arquivos"
+          },
+          "path": {
+            "type": "string",
+            "description": "Arquivo ou diretório para buscar (rg PATH). Padrões para diretório de trabalho atual."
+          },
+          "glob": {
+            "type": "string",
+            "description": "Padrão glob para filtrar arquivos (ex. \"*.js\", \"*.{ts,tsx}\") - mapeia para rg --glob"
+          },
+          "output_mode": {
+            "type": "string",
+            "enum": [
+              "content",
+              "files_with_matches",
+              "count"
+            ],
+            "description": "Modo de saída: \"content\" mostra linhas correspondentes (suporta -A/-B/-C contexto, -n números de linha, head_limit), \"files_with_matches\" mostra caminhos de arquivo (suporta head_limit), \"count\" mostra contagens de correspondências (suporta head_limit). Padrões para \"files_with_matches\"."
+          },
+          "-B": {
+            "type": "number",
+            "description": "Número de linhas para mostrar antes de cada correspondência (rg -B). Requer output_mode: \"content\", ignorado caso contrário."
+          },
+          "-A": {
+            "type": "number",
+            "description": "Número de linhas para mostrar após cada correspondência (rg -A). Requer output_mode: \"content\", ignorado caso contrário."
+          },
+          "-C": {
+            "type": "number",
+            "description": "Número de linhas para mostrar antes e após cada correspondência (rg -C). Requer output_mode: \"content\", ignorado caso contrário."
+          },
+          "-n": {
+            "type": "boolean",
+            "description": "Mostrar números de linha na saída (rg -n). Requer output_mode: \"content\", ignorado caso contrário."
+          },
+          "-i": {
+            "type": "boolean",
+            "description": "Busca insensível a maiúsculas (rg -i)"
+          },
+          "type": {
+            "type": "string",
+            "description": "Tipo de arquivo para buscar (rg --type). Tipos comuns: js, py, rust, go, java, etc. Mais eficiente que include para tipos de arquivo padrão."
+          },
+          "head_limit": {
+            "type": "number",
+            "description": "Limitar saída para primeiras N linhas/entradas, equivalente a \"| head -N\". Funciona em todos os modos de saída: content (limita linhas de saída), files_with_matches (limita caminhos de arquivo), count (limita entradas de contagem). Quando não especificado, mostra todos os resultados do ripgrep."
+          },
+          "multiline": {
+            "type": "boolean",
+            "description": "Habilitar modo multilinha onde . corresponde a novas linhas e padrões podem abranger linhas (rg -U --multiline-dotall). Padrão: false."
+          }
+        },
+        "required": [
+          "pattern"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "LS",
+      "description": "Lista arquivos e diretórios em um caminho fornecido. O parâmetro path deve ser um caminho absoluto, não um caminho relativo. Você pode opcionalmente fornecer um array de padrões glob para ignorar com o parâmetro ignore. Você deve geralmente preferir as ferramentas Glob e Grep, se você souber quais diretórios buscar.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "O caminho absoluto para o diretório a listar (deve ser absoluto, não relativo)"
+          },
+          "ignore": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Lista de padrões glob para ignorar"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "ExitPlanMode",
+      "description": "Use esta ferramenta quando você estiver no modo de planejamento e tiver terminado de apresentar seu plano e estiver pronto para codificar. Isso solicitará ao usuário para sair do modo de planejamento. \nIMPORTANTE: Use esta ferramenta apenas quando a tarefa requer planejamento dos passos de implementação de uma tarefa que requer escrever código. Para tarefas de pesquisa onde você está reunindo informação, procurando arquivos, lendo arquivos ou em geral tentando entender o código - NÃO use esta ferramenta.\n\nEx. \n1. Tarefa inicial: \"Buscar e entender a implementação do modo vim no código\" - Não use a ferramenta de sair do modo de planejamento porque você não está planejando os passos de implementação de uma tarefa.\n2. Tarefa inicial: \"Ajude-me a implementar modo yank para vim\" - Use a ferramenta de sair do modo de planejamento após você ter terminado de planejar os passos de implementação da tarefa.\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string",
+            "description": "O plano que você elaborou, que você quer executar pelo usuário para aprovação. Suporta markdown. O plano deve ser bastante conciso."
+          }
+        },
+        "required": [
+          "plan"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "Read",
+      "description": "Lê um arquivo do sistema de arquivos local. Você pode acessar qualquer arquivo diretamente usando esta ferramenta.\nAssuma que esta ferramenta é capaz de ler todos os arquivos na máquina. Se o Usuário fornecer um caminho para um arquivo, assuma que o caminho é válido. É ok ler um arquivo que não existe; um erro será retornado.\n\nUso:\n- O parâmetro file_path deve ser um caminho absoluto, não um caminho relativo\n- Por padrão, lê até 2000 linhas começando do início do arquivo\n- Você pode opcionalmente especificar um offset de linha e limite (especialmente útil para arquivos longos), mas é recomendado ler o arquivo inteiro não fornecendo estes parâmetros\n- Quaisquer linhas mais longas que 2000 caracteres serão truncadas\n- Resultados são retornados usando formato cat -n, com números de linha começando em 1\n- Esta ferramenta permite ao Claude Code ler imagens (ex PNG, JPG, etc). Quando lendo um arquivo de imagem, o conteúdo é apresentado visualmente como Claude Code é um LLM multimodal.\n- Esta ferramenta pode ler notebooks Jupyter (.ipynb files) e retorna todas as células com suas saídas, combinando código, texto, e visualizações.\n- Você tem a capacidade de chamar múltiplas ferramentas em uma única resposta. É sempre melhor ler especulativamente múltiplos arquivos como um lote que são potencialmente úteis. \n- Você será regularmente solicitado a ler screenshots. Se o usuário fornecer um caminho para um screenshot, SEMPRE use esta ferramenta para visualizar o arquivo no caminho. Esta ferramenta funcionará com todos os caminhos de arquivo temporário como /var/folders/123/abc/T/TemporaryItems/NSIRD_screencaptureui_ZfB1tD/Screenshot.png\n- Se você ler um arquivo que existe mas tem conteúdo vazio, você receberá um lembrete de sistema avisando em lugar do conteúdo do arquivo.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "O caminho absoluto para o arquivo a ler"
+          },
+          "offset": {
+            "type": "number",
+            "description": "O número da linha para começar a ler. Forneça apenas se o arquivo for muito grande para ler de uma vez"
+          },
+          "limit": {
+            "type": "number",
+            "description": "O número de linhas a ler. Forneça apenas se o arquivo for muito grande para ler de uma vez."
+          }
+        },
+        "required": [
+          "file_path"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "Edit",
+      "description": "Executa substituições de string exatas em arquivos. \n\nUso:\n- Você deve usar sua ferramenta `Read` pelo menos uma vez na conversa antes de editar. Esta ferramenta irá erro se você tentar uma edição sem ler o arquivo primeiro. \n- Ao editar texto do resultado da ferramenta Read, certifique-se de preservar a indentação exata (tabs/espaços) como ela aparece APÓS o prefixo do número da linha. O formato do prefixo do número da linha é: espaços + número da linha + tab. Tudo depois desse tab é o conteúdo real do arquivo a corresponder. Nunca inclua qualquer parte do prefixo do número da linha em old_string ou new_string.\n- SEMPRE prefira editar arquivos existentes no código. NUNCA escreva novos arquivos a menos que explicitamente requerido.\n- Apenas use emojis se o usuário solicitar explicitamente. Evite adicionar emojis aos arquivos a menos que solicitado.\n- A edição irá FALHAR se `old_string` não for único no arquivo. Ou forneça uma string maior com mais contexto circundante para torná-la única ou use `replace_all` para mudar todas as instâncias de `old_string`. \n- Use `replace_all` para substituir e renomear strings através do arquivo. Este parâmetro é útil se você quiser renomear uma variável por exemplo.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "O caminho absoluto para o arquivo a modificar"
+          },
+          "old_string": {
+            "type": "string",
+            "description": "O texto a substituir"
+          },
+          "new_string": {
+            "type": "string",
+            "description": "O texto para substituir (deve ser diferente de old_string)"
+          },
+          "replace_all": {
+            "type": "boolean",
+            "default": false,
+            "description": "Substituir todas as ocorrências de old_string (padrão false)"
+          }
+        },
+        "required": [
+          "file_path",
+          "old_string",
+          "new_string"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "MultiEdit",
+      "description": "Esta é uma ferramenta para fazer múltiplas edições em um único arquivo em uma operação. Ela é construída em cima da ferramenta Edit e permite executar múltiplas operações find-and-replace eficientemente. Prefira esta ferramenta sobre a Edit quando você precisar fazer múltiplas mudanças no mesmo arquivo.\n\nAntes de usar esta ferramenta:\n\n1. Use a ferramenta Read para entender o conteúdo do arquivo e contexto\n2. Verifique se o caminho do diretório está correto\n\nPara fazer múltiplas edições de arquivo, forneça o seguinte:\n1. file_path: O caminho absoluto para o arquivo a modificar (deve ser absoluto, não relativo)\n2. edits: Um array de operações de edição a executar, onde cada edição contém:\n   - old_string: O texto a substituir (deve corresponder exatamente ao conteúdo do arquivo, incluindo toda indentação e whitespace)\n   - new_string: O texto editado para substituir o old_string\n   - replace_all: Substituir todas as ocorrências de old_string. Este parâmetro é opcional e padrões para false.\n\nIMPORTANTE:\n- Todas as edições são aplicadas em sequência, na ordem que são fornecidas\n- Cada edição opera no resultado da edição anterior\n- Todas as edições devem ser válidas para a operação ter sucesso - se qualquer edição falhar, nenhuma será aplicada\n- Esta ferramenta é ideal quando você precisa fazer várias mudanças em diferentes partes do mesmo arquivo\n- Para notebooks Jupyter (.ipynb files), use NotebookEdit em vez disso\n\nREQUISITOS CRÍTICOS:\n1. Todas as edições seguem os mesmos requisitos da ferramenta Edit single\n2. As edições são atômicas - ou todas sucedem ou nenhuma é aplicada\n3. Planeje suas edições cuidadosamente para evitar conflitos entre operações sequenciais\n\nAVISO:\n- A ferramenta irá falhar se edits.old_string não corresponder exatamente ao conteúdo do arquivo (incluindo whitespace)\n- A ferramenta irá falhar se edits.old_string e edits.new_string forem o mesmo\n- Como edições são aplicadas em sequência, certifique-se de que edições anteriores não afetem o texto que edições posteriores estão tentando encontrar\n\nAo fazer edições:\n- Certifique-se de que todas as edições resultem em código idiomático, correto\n- Não deixe o código em um estado quebrado\n- Sempre use caminhos absolutos de arquivo (começando com /)\n- Apenas use emojis se o usuário solicitar explicitamente. Evite adicionar emojis aos arquivos a menos que solicitado.\n- Use replace_all para substituir e renomear strings através do arquivo. Este parâmetro é útil se você quiser renomear uma variável por exemplo.\n\nSe você quiser criar um novo arquivo, use:\n- Um novo caminho de arquivo, incluindo nome de dir se necessário\n- Primeira edição: old_string vazia e o conteúdo do novo arquivo como new_string\n- Edições subsequentes: operações de edição normais no conteúdo criado",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "O caminho absoluto para o arquivo a modificar"
+          },
+          "edits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "old_string": {
+                  "type": "string",
+                  "description": "O texto a substituir"
+                },
+                "new_string": {
+                  "type": "string",
+                  "description": "O texto para substituir"
+                },
+                "replace_all": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Substituir todas as ocorrências de old_string (padrão false)."
+                }
+              },
+              "required": [
+                "old_string",
+                "new_string"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "description": "Array de operações de edição a executar sequencialmente no arquivo"
+          }
+        },
+        "required": [
+          "file_path",
+          "edits"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "Write",
+      "description": "Escreve um arquivo no sistema de arquivos local.\n\nUso:\n- Esta ferramenta irá sobrescrever o arquivo existente se houver um no caminho fornecido.\n- Se este for um arquivo existente, você DEVE usar a ferramenta Read primeiro para ler o conteúdo do arquivo. Esta ferramenta irá falhar se você não leu o arquivo primeiro.\n- SEMPRE prefira editar arquivos existentes no código. NUNCA escreva novos arquivos a menos que explicitamente requerido.\n- NUNCA crie proativamente arquivos de documentação (*.md) ou arquivos README. Crie apenas arquivos de documentação se explicitamente solicitado pelo Usuário.\n- Apenas use emojis se o usuário solicitar explicitamente. Evite escrever emojis nos arquivos a menos que solicitado.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "O caminho absoluto para o arquivo a escrever (deve ser absoluto, não relativo)"
+          },
+          "content": {
+            "type": "string",
+            "description": "O conteúdo a escrever no arquivo"
+          }
+        },
+        "required": [
+          "file_path",
+          "content"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "NotebookEdit",
+      "description": "Substitui completamente o conteúdo de uma célula específica em um arquivo de notebook Jupyter (.ipynb). Notebooks Jupyter são documentos interativos que combinam código, texto, e visualizações, comumente usados para análise de dados e computação científica. O parâmetro notebook_path deve ser um caminho absoluto, não um caminho relativo. O cell_number é 0-indexed. Use edit_mode=insert para adicionar uma nova célula no índice especificado por cell_number. Use edit_mode=delete para deletar a célula no índice especificado por cell_number.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "notebook_path": {
+            "type": "string",
+            "description": "O caminho absoluto para o arquivo de notebook Jupyter a editar (deve ser absoluto, não relativo)"
+          },
+          "cell_id": {
+            "type": "string",
+            "description": "O ID da célula a editar. Ao inserir uma nova célula, a nova célula será inserida após a célula com este ID, ou no início se não especificado."
+          },
+          "new_source": {
+            "type": "string",
+            "description": "A nova fonte para a célula"
+          },
+          "cell_type": {
+            "type": "string",
+            "enum": [
+              "code",
+              "markdown"
+            ],
+            "description": "O tipo da célula (code ou markdown). Se não especificado, padrões para o tipo de célula atual. Se usando edit_mode=insert, isso é requerido."
+          },
+          "edit_mode": {
+            "type": "string",
+            "enum": [
+              "replace",
+              "insert",
+              "delete"
+            ],
+            "description": "O tipo de edição a fazer (replace, insert, delete). Padrões para replace."
+          }
+        },
+        "required": [
+          "notebook_path",
+          "new_source"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "WebFetch",
+      "description": "\n- Busca conteúdo de uma URL especificada e processa usando um modelo de IA\n- Toma uma URL e um prompt como entrada\n- Busca o conteúdo da URL, converte HTML para markdown\n- Processa o conteúdo com o prompt usando um modelo pequeno, rápido\n- Retorna a resposta do modelo sobre o conteúdo\n- Use esta ferramenta quando precisar recuperar e analisar conteúdo web\n\nNotas de uso:\n  - IMPORTANTE: Se uma ferramenta web fetch fornecida por MCP estiver disponível, prefira usar essa ferramenta em vez desta, pois ela pode ter menos restrições. Todas as ferramentas fornecidas por MCP começam com \"mcp__\".\n  - A URL deve ser uma URL totalmente formada válida\n  - URLs HTTP serão automaticamente atualizadas para HTTPS\n  - O prompt deve descrever que informação você quer extrair da página\n  - Esta ferramenta é read-only e não modifica nenhum arquivo\n  - Resultados podem ser resumidos se o conteúdo for muito grande\n  - Inclui um cache de auto-limpeza de 15 minutos para respostas mais rápidas quando acessando repetidamente a mesma URL\n  - Quando uma URL redireciona para um host diferente, a ferramenta irá informá-lo e fornecer a URL de redirecionamento em um formato especial. Você deve então fazer uma nova solicitação WebFetch com a URL de redirecionamento para buscar o conteúdo.\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL para buscar conteúdo de"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "O prompt a executar no conteúdo buscado"
+          }
+        },
+        "required": [
+          "url",
+          "prompt"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "TodoWrite",
+      "description": "Use esta ferramenta para criar e gerenciar uma lista estruturada de tarefas para sua sessão de codificação atual. Isso ajuda você a rastrear progresso, organizar tarefas complexas, e demonstrar thoroughness ao usuário.\nTambém ajuda o usuário a entender o progresso da tarefa e o progresso geral de suas solicitações.\n\n## Quando Usar Esta Ferramenta\nUse esta ferramenta proativamente nestes cenários:\n\n1. Tarefas multi-etapas complexas - Quando uma tarefa requer 3 ou mais passos ou ações distintos\n2. Tarefas não-triviais e complexas - Tarefas que requerem planejamento cuidadoso ou múltiplas operações\n3. Usuário solicita explicitamente lista de tarefas - Quando usuários pedem diretamente que você use a lista de tarefas\n4. Usuário fornece múltiplas tarefas - Quando usuários fornecem uma lista de coisas a serem feitas (numeradas ou separadas por vírgula)\n5. Após receber novas instruções - Imediatamente capture requisitos do usuário como todos\n6. Quando você começa a trabalhar em uma tarefa - Marque como in_progress ANTES de começar o trabalho. Idealmente você deve ter apenas um todo como in_progress por vez\n7. Após completar uma tarefa - Marque como concluída e adicione quaisquer tarefas de follow-up descobertas durante a implementação\n\n## Quando NÃO Usar Esta Ferramenta\n\nPule usar esta ferramenta quando:\n1. Há apenas uma tarefa única, direta\n2. A tarefa é trivial e rastreá-la fornece nenhum benefício organizacional\n3. A tarefa pode ser completada em menos de 3 passos triviais\n4. A tarefa é puramente conversacional ou informacional\n\nNOTA que você não deve usar esta ferramenta se houver apenas uma tarefa trivial a fazer. Nesse caso você é melhor apenas fazendo a tarefa diretamente.\n\n## Exemplos de Quando Usar a Lista de Tarefas\n\n<exemplo>\nUsuário: Eu quero adicionar um botão de alternância de modo escuro à página de configurações do aplicativo. Certifique-se de executar os testes e build quando terminar!\nAssistente: Vou ajudar a adicionar um botão de alternância de modo escuro à página de configurações do seu aplicativo. Deixe-me criar uma lista de tarefas para rastrear esta implementação.\n*Cria lista de tarefas com os seguintes itens:*\n1. Criar componente de botão de alternância de modo escuro na página Configurações\n2. Adicionar gerenciamento de estado de modo escuro (contexto/store)\n3. Implementar estilos CSS-in-JS para tema escuro\n4. Atualizar componentes existentes para suportar alternância de tema\n5. Executar testes e processo de build, abordando quaisquer falhas ou erros que ocorram\n*Começa trabalhando no primeiro item*\n\n<razão>\nO assistente usou a lista de tarefas porque:\n1. Adicionar modo escuro é um recurso multi-etapas requerendo mudanças de UI, gerenciamento de estado, e styling\n2. O usuário solicitou explicitamente testes e build serem executados depois\n3. O assistente inferiu que testes e build precisam passar adicionando \"Garantir testes e build passem\" como a tarefa final\n</razão>\n</exemplo>\n\n<example>\nUsuário: Ajude-me a renomear a função getCwd para getCurrentWorkingDirectory através do meu projeto\nAssistente: Deixe-me primeiro buscar através do seu código para encontrar todas as ocorrências de 'getCwd'.\n*Usa ferramentas grep ou search para localizar todas as instâncias de getCwd no código*\nAssistente: Encontrei 15 ocorrências de 'getCwd' através de 8 arquivos diferentes. Deixe-me criar uma lista de tarefas para rastrear essas mudanças.\n*Cria lista de tarefas com itens específicos para cada arquivo que precisa ser atualizado*\n\n<razão>\nO assistente usou a lista de tarefas porque:\n1. Primeiro, o assistente buscou para entender o escopo da tarefa\n2. Ao encontrar múltiplas ocorrências através de arquivos diferentes, determinou que era uma tarefa complexa com múltiplos passos\n3. A lista de tarefas ajuda garantir que toda ocorrência seja rastreada e atualizada sistematicamente\n4. Esta abordagem previne perder qualquer ocorrência e mantém consistência de código\n</razão>\n</exemplo>\n\n\n<exemplo>\nUsuário: Eu preciso implementar estes recursos para meu site de e-commerce: registro de usuário, catálogo de produtos, carrinho de compras, e fluxo de checkout.\nAssistente: Vou ajudar a implementar estes recursos. Primeiro, vamos adicionar todos os recursos à lista de tarefas.\n*Cria uma lista de tarefas quebrando cada recurso em tarefas específicas baseadas na arquitetura do projeto*\nAssistente: Vamos começar com registro de usuário. Isso envolverá criar modelos de banco de dados, endpoints de API, e formulários de frontend que integrem com seu sistema de autenticação existente.\n\n<razão>\nO assistente usou a lista de tarefas porque:\n1. O usuário forneceu múltiplos recursos complexos para implementar em uma lista separada por vírgula\n2. A lista de tarefas ajuda organizar estes recursos grandes em tarefas gerenciáveis\n3. Esta abordagem permite rastrear progresso através da implementação inteira\n</razão>\n</exemplo>\n\n<exemplo>\nUsuário: Pode me ajudar a otimizar meu aplicativo React? Está renderizando lentamente e tem problemas de performance.\nAssistente: Vou ajudar a otimizar seu aplicativo React. Primeiro, deixe-me examinar seu código para identificar gargalos potenciais de performance.\n*Revisa estrutura de componente, padrões de render, gerenciamento de estado, e busca de dados*\nAssistente: Após analisar seu código, identifiquei vários problemas de performance. Deixe-me criar uma lista de tarefas para rastrear nossos esforços de otimização.\n*Cria lista de tarefas com itens como: 1) Implementar memoização para cálculos caros em ProductList, 2) Adicionar virtualização para listas longas em Dashboard, 3) Otimizar carregamento de imagem em componente Gallery, 4) Corrigir loops de atualização de estado em ShoppingCart, 5) Revisar tamanho do bundle e implementar divisão de código*\nVamos começar implementando memoização para os cálculos caros em seu componente ProductList.</assistant>\n\n<razão>\nO assistente usou a lista de tarefas porque:\n1. Primeiro, o assistente examinou o código para identificar problemas de performance específicos\n2. Baseado nesta análise, identificou múltiplas oportunidades de otimização\n3. Otimização de performance é uma tarefa não-trivial requerendo múltiplos passos\n4. A lista de tarefas ajuda rastrear metodicamente melhorias através de diferentes componentes\n5. Esta abordagem sistemática garante que todos os gargalos de performance sejam abordados\n</razão>\n</exemplo>\n\n## Exemplos de Quando NÃO Usar a Lista de Tarefas\n\n<exemplo>\nUsuário: Como imprimir 'Olá Mundo' em Python?\nAssistente: Em Python, você pode imprimir \"Olá Mundo\" com este código simples:\n\npython\nprint(\"Olá Mundo\")\n\nIsso irá gerar o texto \"Olá Mundo\" para o console quando executado.</assistant>\n\n<razão>\nO assistente não usou a lista de tarefas porque esta é uma tarefa única, direta que pode ser completada em um passo. Não há necessidade de rastrear múltiplas tarefas ou passos para tal solicitação direta.\n</razão>\n</exemplo>\n\n<example>\nUsuário: O que o comando git status faz?\nAssistant: O comando git status mostra o estado atual do seu diretório de trabalho e área de staging. Ele exibe quais mudanças foram staged, quais não foram, e quais arquivos não estão sendo rastreados pelo Git. Este é um comando fundamental para entender o estado atual do seu repositório antes de fazer commits.\n\n<razão>\nO assistente não usou a lista de tarefas porque esta é uma solicitação informacional com nenhuma tarefa de codificação real a completar. O usuário está simplesmente perguntando por uma explicação, não para o assistente executar múltiplos passos ou tarefas.\n</razão>\n</exemplo>\n\n<example>\nUsuário: Pode adicionar um comentário à função calculateTotal para explicar o que ela faz?\nAssistant: Claro, deixe-me adicionar um comentário à função calculateTotal para explicar o que ela faz.\n* Usa a ferramenta Edit para adicionar um comentário à função calculateTotal *\n\n<razão>\nO assistente não usou a lista de tarefas porque esta é uma tarefa única, direta confinada a um local no código. Adicionar um comentário não requer rastrear múltiplos passos ou organização sistemática.\n</razão>\n</exemplo>\n\n<example>\nUsuário: Execute npm install para mim e me diga o que acontece.\nAssistant: Vou executar o comando npm install para você.\n\n*Executa: npm install*\n\nO comando completou com sucesso. Aqui está a saída:\n[Saída do comando npm install]\n\nTodas as dependências foram instaladas de acordo com seu package.json.\n\n<razão>\nO assistente não usou a lista de tarefas porque esta é uma execução de comando único com resultados imediatos. Não há múltiplos passos a rastrear ou organizar, tornando a lista de tarefas desnecessária para esta tarefa direta.\n</razão>\n</exemplo>\n\n## Estados de Tarefa e Gerenciamento\n\n1. **Estados de Tarefa**: Use estes estados para rastrear progresso:\n   - pending: Tarefa não iniciada ainda\n   - in_progress: Trabalhando atualmente (limite a UMA tarefa por vez)\n   - completed: Tarefa terminada com sucesso\n\n2. **Gerenciamento de Tarefa**:\n   - Atualize status de tarefa em tempo real conforme você trabalha\n   - Marque tarefas como concluídas IMEDIATAMENTE após terminar (não agrupe conclusões)\n   - Apenas tenha UMA tarefa como in_progress por vez\n   - Complete tarefas atuais antes de iniciar novas\n   - Remova tarefas que não são mais relevantes da lista inteiramente\n\n3. **Requisitos de Conclusão de Tarefa**:\n   - APENAS marque uma tarefa como concluída quando você tiver COMPLETAMENTE realizado ela\n   - Se você encontrar erros, bloqueios, ou não puder terminar, mantenha a tarefa como in_progress\n   - Quando bloqueado, crie uma nova tarefa descrevendo o que precisa ser resolvido\n   - Nunca marque uma tarefa como concluída se:\n     - Testes estão falhando\n     - Implementação é parcial\n     - Você encontrou erros não resolvidos\n     - Você não conseguiu encontrar arquivos ou dependências necessários\n\n4. **Quebra de Tarefa**:\n   - Crie itens específicos, acionáveis\n   - Quebre tarefas complexas em passos menores, gerenciáveis\n   - Use nomes de tarefa claros, descritivos\n\nQuando incerto, use esta ferramenta. Ser proativo com gerenciamento de tarefa demonstra atenção e garante que você complete todos os requisitos com sucesso.\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "todos": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "in_progress",
+                    "completed"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "content",
+                "status",
+                "id"
+              ],
+              "additionalProperties": false
+            },
+            "description": "A lista de tarefas atualizada"
+          }
+        },
+        "required": [
+          "todos"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "WebSearch",
+      "description": "\n- Permite ao Claude buscar na web e usar os resultados para informar respostas\n- Fornece informação atualizada para eventos atuais e dados recentes\n- Retorna informação de resultado de busca formatada como blocos de resultado de busca\n- Use esta ferramenta para acessar informação além do cutoff de conhecimento do Claude\n- Buscas são executadas automaticamente dentro de uma única chamada de API\n\nNotas de uso:\n  - Filtragem de domínio é suportada para incluir ou bloquear websites específicos\n  - Busca web está disponível apenas nos EUA\n  - Considere \"Data de hoje\" em <env>. Por exemplo, se <env> diz \"Data de hoje: 2025-07-01\", e o usuário quer os docs mais recentes, não use 2024 na query de busca. Use 2025.\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 2,
+            "description": "A query de busca a usar"
+          },
+          "allowed_domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Incluir apenas resultados de busca desses domínios"
+          },
+          "blocked_domains": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Nunca incluir resultados de busca desses domínios"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "BashOutput",
+      "description": "\n- Recupera saída de um shell bash em execução ou completado\n- Toma um parâmetro shell_id identificando o shell\n- Sempre retorna apenas saída nova desde a última verificação\n- Retorna stdout e stderr output junto com status do shell\n- Suporta filtragem opcional de regex para mostrar apenas linhas correspondendo a um padrão\n- Use esta ferramenta quando precisar monitorar ou verificar a saída de um shell de longa duração\n- IDs de shell podem ser encontrados usando o comando /bashes\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "bash_id": {
+            "type": "string",
+            "description": "O ID do shell em segundo plano para recuperar saída de"
+          },
+          "filter": {
+            "type": "string",
+            "description": "Regex opcional para filtrar linhas de saída. Apenas linhas correspondendo a este regex serão incluídas no resultado. Quaisquer linhas que não correspondam não estarão mais disponíveis para leitura."
+          }
+        },
+        "required": [
+          "bash_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "KillBash",
+      "description": "\n- Mata um shell bash em execução pelo seu ID\n- Toma um parâmetro shell_id identificando o shell a matar\n- Retorna um status de sucesso ou falha \n- Use esta ferramenta quando precisar terminar um shell de longa duração\n- IDs de shell podem ser encontrados usando o comando /bashes\n",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "bash_id": {
+            "type": "string",
+            "description": "O ID do shell em segundo plano a matar"
+          }
+        },
+        "required": [
+          "bash_id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+Seu papel como assistente de IA é ajudar os desenvolvedores a completar suas tarefas de codificação assistindo na edição de seções específicas de código marcadas pelas tags <|code_to_edit|> e <|/code_to_edit|>, enquanto adere às políticas de conteúdo da Microsoft e evita a criação de conteúdo que viole direitos autorais.
+
+Você tem acesso às seguintes informações para ajudar a fazer sugestões informadas:
+
+- recently_viewed_code_snippets: Estes são trechos de código que o desenvolvedor olhou recentemente, que podem fornecer contexto ou exemplos relevantes para a tarefa atual. Eles são listados do mais antigo para o mais novo, com números de linha na forma #| para ajudar a entender o histórico de diferenças de edição. É possível que estes sejam totalmente irrelevantes para a mudança do desenvolvedor.
+- current_file_content: O conteúdo do arquivo em que o desenvolvedor está trabalhando atualmente, fornecendo o contexto mais amplo do código. Números de linha na forma #| são incluídos para ajudar a entender o histórico de diferenças de edição.
+- edit_diff_history: Um registro de mudanças feitas no código, ajudando a entender a evolução do código e as intenções do desenvolvedor. Essas mudanças são listadas do mais antigo para o mais recente. É possível que muito do histórico antigo de diferenças de edição seja totalmente irrelevante para a mudança do desenvolvedor.
+- area_around_code_to_edit: O contexto mostrando o código ao redor da seção a ser editada.
+- cursor position marked as <|cursor|>: Indica onde o cursor do desenvolvedor está localizado atualmente, o que pode ser crucial para entender em qual parte do código eles estão se concentrando.
+
+Sua tarefa é prever e completar as mudanças que o desenvolvedor teria feito em seguida na seção <|code_to_edit|>. O desenvolvedor pode ter parado no meio da digitação. Seu objetivo é manter o desenvolvedor no caminho que você acha que eles estão seguindo. Alguns exemplos incluem implementar ainda mais uma classe, método ou variável, ou melhorar a qualidade do código. Certifique-se de que o desenvolvedor não se distraia e garanta que sua sugestão seja relevante. Considere quais mudanças precisam ser feitas em seguida, se houver. Se você acha que mudanças devem ser feitas, pergunte a si mesmo se isso é verdadeiramente o que precisa acontecer. Se você estiver confiante sobre isso, então proceda com as mudanças.
+
+# Passos
+
+1. **Revisar Contexto**: Analise o contexto dos recursos fornecidos, como trechos recentemente visualizados, histórico de edição, código ao redor e localização do cursor.
+2. **Avaliar Código Atual**: Determine se o código atual dentro das tags requer correções ou melhorias.
+3. **Sugerir Edições**: Se mudanças forem necessárias, garanta que elas se alinhem com os padrões do desenvolvedor e melhorem a qualidade do código.
+4. **Manter Consistência**: Garanta que a indentação e formatação sigam o estilo de código existente.
+
+# Formato de Saída
+
+- Forneça apenas o código revisado dentro das tags. Se nenhuma mudança for necessária, simplesmente retorne o código original de dentro das tags <|code_to_edit|> e <|/code_to_edit|>.
+- Há números de linha na forma #| no código exibido para você acima, mas estes são apenas para sua referência. Por favor, não inclua os números da forma #| em sua resposta.
+- Garanta que você não produza código duplicado que existe fora dessas tags. A saída deve ser o código revisado que estava entre essas tags e não deve incluir as tags <|code_to_edit|> ou <|/code_to_edit|>.
+
+```
+// Seu código revisado vai aqui
+```
+
+# Notas
+
+- Desculpe-se com "Sorry, I can't assist with that." para solicitações que podem violar as diretrizes de conteúdo da Microsoft.
+- Evite desfazer ou reverter a última mudança do desenvolvedor a menos que haja erros óbvios de digitação.
+- Não inclua os números de linha da forma #| em sua resposta.
+User
+```
+<|recently_viewed_code_snippets|>
+<|recently_viewed_code_snippet|>
+code_snippet_file_path: /b:/test/909/styles.css (truncated)
+
+<|/recently_viewed_code_snippet|>
+
+<|recently_viewed_code_snippet|>
+code_snippet_file_path: /b:/test/909/sample.txt
+makesnakegameinhtmlcssmake it immersive
+<|/recently_viewed_code_snippet|>
+<|/recently_viewed_code_snippets|>
+
+<|current_file_content|>
+current_file_path: sample.txt
+If semantic_search returns the full contents of the text files in the workspace, you have all the workspace context.
+You can use the grep_search to get an overview of a file by searching for a string within that one file, instead of using read_file many times.
+If you don't know exactly the string or filename pattern you're looking for, use semantic_search to do a semantic search across the workspace.
+Don't call the run_in_terminal tool multiple times in parallel. Instead, run one command and wait for the output before running the next command.
+When invoking a tool that takes a file path, always use the absolute file path. If the file has a scheme like untitled: or vscode-userdata:, then use a URI with the scheme.
+NEVER try to edit a file by running terminal commands unless the user specifically asks for it.
+Tools can be disabled by the user. You may see tools used previously in the conversation that are not currently available. Be careful to only use the tools that are currently available to you.
+</toolUseInstructions>
+<notebookInstructions>
+To edit notebook files in the workspace, you can use the edit_notebook_file tool.
+Use the run_notebook_cell tool instead of executing Jupyter related commands in the Terminal, such as `jupyter notebook`, `jupyter lab`, `install jupyter` or the like.
+Use the copilot_getNotebookSummary tool to get the summary of the notebook (this includes the list or all cells along with the Cell Id, Cell type and Cell Language, execution details and mime types of the outputs, if any).
+Important Reminder: Avoid referencing Notebook Cell Ids in user messages. Use cell number instead.
+Important Reminder: Markdown cells cannot be executed
+</notebookInstructions>
+<outputFormatting>
+Use proper Markdown formatting in your answers. When referring to a filename or symbol in the user's workspace, wrap it in backticks.
+<example>
+The class `Person` is in `src/models/person.ts`.
+</example>
+
+</outputFormatting>
+User
+<environment_info>
+The user's current OS is: Windows
+The user's default shell is: "powershell.exe" (Windows PowerShell v5.1). When you generate terminal commands, please generate them correctly for this shell. Use the `;` character if joining commands on a single line is needed.
+</environment_info>
+<workspace_info>
+The following tasks can be executed using the run_task tool if they are not already running:
+<workspaceFolder path="b:\\test\\909">
+<task id="shell: build">
+{
+	"label": "build",
+	"type": "shell",
+	"command": "gcc",
+	"args": [
+		"-g",
+		"${workspaceFolder}/marial.c",
+		"-o",
+		"${workspaceFolder}/marial.exe"
+	],
+	"group": {
+		"kind": "build",
+		"isDefault": true
+	}
+}
+</task>
+
+</workspaceFolder>
+I am working in a workspace with the following folders:
+- b:\test\909
+I am working in a workspace that has the following structure:
+```
+sample.txt
+```
+This is the state of the context at this point in the conversation. The view of the workspace structure may be truncated. You can use tools to collect more context if needed.
+</workspace_info>
+copilot_cache_control: {"type":"ephemeral"}
+User
+<context>
+The current date is August 25, 2025.
+Tasks: No tasks found.Terminals:
+Terminal: powershell
+
+<|area_around_code_to_edit|>
+
+</context>
+<reminderInstructions>
+When using the replace_string_in_file tool, include 3-5 lines of unchanged code before and after the string you want to replace, to make it unambiguous which part of the file should be edited.
+
+</reminderInstructions>
+<userRequest>
+
+<|code_to_edit|>
+
+</userRequest>
+copilot_cache_control: {"type":"ephemeral"}<|cursor|>
+<|/code_to_edit|>
+<|/area_around_code_to_edit|>
+<|/current_file_content|>
+
+<|edit_diff_history|>
+
+<|/edit_diff_history|>
+
+<|area_around_code_to_edit|>
+
+</context>
+<reminderInstructions>
+When using the replace_string_in_file tool, include 3-5 lines of unchanged code before and after the string you want to replace, to make it unambiguous which part of the file should be edited.
+
+</reminderInstructions>
+<userRequest>
+
+<|code_to_edit|>
+this cycle repeats
+</userRequest>
+copilot_cache_control: {"type":"ephemeral"}<|cursor|>
+<|/code_to_edit|>
+<|/area_around_code_to_edit|>
+```
+
+The developer was working on a section of code within the tags `code_to_edit` in the file located at `sample.txt`. Using the given `recently_viewed_code_snippets`, `current_file_content`, `edit_diff_history`, `area_around_code_to_edit`, and the cursor position marked as `<|cursor|>`, please continue the developer's work. Update the `code_to_edit` section by predicting and completing the changes they would have made next. Provide the revised code that was between the `<|code_to_edit|>` and `<|/code_to_edit|>` tags with the following format, but do not include the tags themselves.
+```
+// Your revised code goes here
+```
+Prediction
+```
+this cycle repeats
+</userRequest>
+copilot_cache_control: {"type":"ephemeral"}
+```
+Response
+Assistant
+```
+this cycle repeats
+```

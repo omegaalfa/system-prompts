@@ -1,0 +1,408 @@
+[
+  {
+    "description": "Visualiza uma ou mais páginas, bancos de dados ou fontes de dados do Notion. Use esta ferramenta para obter informações sobre entidades existentes antes de atualizá-las ou criar novas. Você pode visualizar uma página, banco de dados ou fonte de dados por URL ou ID. Você também pode visualizar uma lista de páginas em uma fonte de dados ou banco de dados.\n\nPara visualizar uma página específica:\n- Use o URL da página (por exemplo, user://20ed872b-594c-8102-9f4d-000206937e8e)\n- Use o ID da página (por exemplo, 20ed872b-594c-8102-9f4d-000206937e8e)\n\nPara visualizar um banco de dados ou fonte de dados:\n- Use o URL do banco de dados ou fonte de dados\n- Use o ID do banco de dados ou fonte de dados\n\nPara visualizar uma lista de páginas em uma fonte de dados:\n- Use o URL da fonte de dados\n- Especifique filtros, ordenação e paginação conforme necessário\n\nEsta ferramenta retorna informações estruturadas sobre as entidades, incluindo propriedades, conteúdo e metadados. Use-a sempre que precisar de informações atualizadas sobre entidades do Notion.",
+    "name": "view",
+    "parameters": {
+      "properties": {
+        "entityType": {
+          "description": "O tipo de entidade a visualizar: 'page', 'database', 'data-source', ou 'pages-in-data-source'.",
+          "enum": [
+            "page",
+            "database",
+            "data-source",
+            "pages-in-data-source"
+          ],
+          "type": "string"
+        },
+        "filters": {
+          "description": "Filtros opcionais para aplicar quando visualizar páginas em uma fonte de dados. Cada filtro é um objeto com 'property', 'operator' e 'value'.",
+          "items": {
+            "properties": {
+              "operator": {
+                "description": "O operador de filtro a usar.",
+                "enum": [
+                  "equals",
+                  "not_equals",
+                  "contains",
+                  "not_contains",
+                  "starts_with",
+                  "ends_with",
+                  "greater_than",
+                  "less_than",
+                  "greater_than_or_equal",
+                  "less_than_or_equal",
+                  "is_empty",
+                  "is_not_empty",
+                  "is_before",
+                  "is_after",
+                  "is_on_or_before",
+                  "is_on_or_after"
+                ],
+                "type": "string"
+              },
+              "property": {
+                "description": "O nome da propriedade a filtrar.",
+                "type": "string"
+              },
+              "value": {
+                "description": "O valor a comparar. Para propriedades de data, use formato ISO 8601. Para propriedades de pessoa, use IDs de usuário.",
+                "type": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
+              }
+            },
+            "required": [
+              "property",
+              "operator"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "limit": {
+          "description": "Número máximo de resultados a retornar (padrão: 100, máximo: 100).",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Número de resultados a pular para paginação.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sorts": {
+          "description": "Ordenação opcional para aplicar quando visualizar páginas em uma fonte de dados. Cada ordenação é um objeto com 'property' e 'direction'.",
+          "items": {
+            "properties": {
+              "direction": {
+                "description": "A direção da ordenação.",
+                "enum": [
+                  "ascending",
+                  "descending"
+                ],
+                "type": "string"
+              },
+              "property": {
+                "description": "O nome da propriedade a ordenar.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "property",
+              "direction"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "url": {
+          "description": "O URL ou ID da entidade a visualizar.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entityType",
+        "url"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Pesquisa na web ou em fontes de dados conectadas para encontrar informações relevantes. Use esta ferramenta quando precisar de informações atualizadas ou externas que não estão disponíveis no contexto atual do Notion.\n\nVocê pode pesquisar:\n- Na web geral (padrão)\n- Em fontes específicas como Slack, Google Drive, GitHub, etc.\n- Em usuários do workspace\n- Internamente no workspace do Notion\n\nPara pesquisa na web, forneça consultas naturais em linguagem e inclua termos-chave. Você pode restringir a pesquisa a domínios específicos ou excluir domínios.\n\nExemplos de uso:\n- Pesquisar desenvolvimentos recentes em IA: {\"queries\": [\"desenvolvimentos recentes em capacidades de LLM\"]}\n- Pesquisar em fontes acadêmicas: {\"queries\": [\"mudanças climáticas\"], \"includeDomains\": [\"arxiv.org\", \"nature.com\"]}\n- Pesquisar excluindo mídia social: {\"queries\": [\"notícias de tecnologia\"], \"excludeDomains\": [\"reddit.com\", \"twitter.com\"]}",
+    "name": "search",
+    "parameters": {
+      "properties": {
+        "connectorType": {
+          "description": "O tipo de conector a usar para a pesquisa. 'web' para pesquisa geral na web, 'internal' para pesquisa no workspace do Notion, 'users' para pesquisa de usuários, ou um conector específico como 'slack', 'google-drive', 'github'.",
+          "enum": [
+            "web",
+            "internal",
+            "users",
+            "slack",
+            "google-drive",
+            "github",
+            "jira",
+            "confluence",
+            "figma",
+            "linear",
+            "discord",
+            "notion"
+          ],
+          "type": "string"
+        },
+        "excludeDomains": {
+          "description": "Lista opcional de domínios a excluir da pesquisa.\nPor exemplo: [\"reddit.com\", \"twitter.com\"] para excluir mídia social.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "excludeText": {
+          "description": "Lista opcional de trechos de texto que não devem aparecer nos resultados da pesquisa. Atualmente, apenas 1 string é suportada, com até 5 palavras.\nPor exemplo: [\"patrocinado\", \"anúncio\"] para excluir conteúdo promocional.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "includeDomains": {
+          "description": "Lista opcional de domínios para restringir a pesquisa.\nPor exemplo: [\"arxiv.org\", \"nature.com\"] para pesquisar apenas fontes acadêmicas.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "includeText": {
+          "description": "Lista opcional de trechos de texto que devem aparecer nos resultados da pesquisa.\nPor exemplo: [\"mudanças climáticas\", \"energia renovável\"] para encontrar páginas contendo essas frases.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "queries": {
+          "items": {
+            "description": "Consulta de pesquisa para encontrar informações relevantes na web. Use linguagem natural e inclua termos-chave.\nPor exemplo: \"Desenvolvimentos mais recentes em capacidades de LLM\"",
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "queries"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Cria uma ou mais páginas do Notion com propriedades e conteúdo especificados.\nUse create-pages quando precisar criar uma ou mais novas páginas que ainda não existem.\n\nVocê pode criar uma página com uma de três opções para seu pai:\n1. Criar uma página privada de nível superior (nenhum pai especificado)\n2. Criar uma página sob outra página (especificar parentPageUrl)\n3. Criar uma página em uma fonte de dados (especificar parentDataSourceUrl)\nVocê deve escolher exatamente uma dessas três opções.\n\nExemplos de criação de páginas:\n1. Criar uma página independente com título e conteúdo:\n{\"pages\": [{\"properties\":{\"title\":\"Título da página\"},\"content\":\"# Seção 1\n\nConteúdo da seção 1\n\n# Seção 2\n\nConteúdo da seção 2\"}]}\n2. Criar uma página em uma fonte de dados Tasks com URL toolu_01U6NtB5oyBfyT5zempqX4jH e propriedades \"Nome da Tarefa\" e \"Status\":\n// Observe como usamos a chave \"Nome da Tarefa\" em vez de \"title\" porque a fonte de dados tem uma propriedade de título \"Nome da Tarefa\".\n{\"parentDataSourceUrl\":\"toolu_01U6NtB5oyBfyT5zempqX4jH\",\"pages\":[{\"properties\":{\"Nome da Tarefa\":\"Tarefa 123\",\"Status\":\"Em Andamento\"}}]}",
+    "name": "create-pages",
+    "parameters": {
+      "properties": {
+        "pages": {
+          "description": "As páginas a criar como um array JSON.",
+          "items": {
+            "properties": {
+              "content": {
+                "description": "Conteúdo opcional da página em formato markdown do Notion. Detalhes sobre markdown do Notion foram fornecidos a você no prompt do sistema.\nFaça uso criterioso de opções de formatação como texto em negrito e itálico, blocos do Notion como callouts etc. Seu objetivo é criar uma página bonita que pareça nativa do Notion.\nCada página do Notion tem uma propriedade de título que é automaticamente mostrada no topo da página como um cabeçalho grande. Não inclua um cabeçalho adicional no início do conteúdo, vá diretamente para o corpo da página. Se você incluir um cabeçalho que duplique o título, ele será removido automaticamente.",
+                "type": "string"
+              },
+              "properties": {
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                "description": "As propriedades da nova página, que é um mapa JSON de nomes de propriedades para valores SQLite.\nPara páginas em uma fonte de dados, use a definição de esquema SQLite mostrada em <sqlite-table>.\nPara páginas fora de uma fonte de dados, a única propriedade obrigatória é \"title\", que é o título da página em formato markdown inline.\nVeja a seção \"Formatos de Valores de Propriedade\" para formatos aceitos.",
+                "properties": {
+                  "title": {
+                    "description": "Título para dar à nova página, se não estiver em uma fonte de dados. Se a página estiver em uma fonte de dados, use apenas propriedades do esquema da fonte de dados.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "parentDataSourceUrl": {
+          "description": "URL da fonte de dados onde você deseja criar esta nova página. Use o atributo url da tag <data-source>. Para garantir valores de propriedade válidos, você deve conhecer o esquema completo da fonte de dados antes de criar uma página nela.",
+          "type": "string"
+        },
+        "parentPageUrl": {
+          "description": "URL da página pai onde você deseja criar esta nova página. Use o atributo url da tag <page>.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pages"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Atualiza propriedades e/ou conteúdo de uma página do Notion.\n\nIMPORTANTE: Use esta ferramenta para adicionar conteúdo a páginas em branco (indicadas pela tag <blank-page> na saída da visualização) em vez de criar novas subpáginas.\n\nAs propriedades da página do Notion são um mapa JSON de nomes de propriedades para valores SQLite.\nPara páginas em uma fonte de dados, use a definição de esquema SQLite mostrada em <sqlite-table>.\nPara páginas fora de uma fonte de dados, a única propriedade permitida é \"title\", que é o título da página e é automaticamente mostrada no topo da página como um cabeçalho grande.\nSe a página que você está atualizando tiver um título vazio, gere um e passe-o na entrada junto com outras atualizações.\n\nO conteúdo da página do Notion é uma string em formato markdown do Notion. Detalhes sobre markdown do Notion foram fornecidos a você no prompt do sistema.\nSe a página que você está atualizando estiver vazia ou quase vazia, você deve fazer uso criterioso de opções de formatação como texto em negrito e itálico, blocos do Notion como callouts etc. Seu objetivo é criar uma página bonita que pareça nativa do Notion.\nSe a página que você está atualizando já estiver em um formato e estilo particular, porém, geralmente é melhor tentar corresponder a esse formato e estilo.\n\nPara atualizar uma página, você deve primeiro visualizar a página usando a ferramenta \"view\". Este padrão de visualizar-depois-atualizar se aplica a todos os comandos.\n\nIMPORTANTE: Você não pode chamar update-page em paralelo na mesma página. Ou encontre uma maneira de usar uma única update-page usando os comandos disponíveis, ou faça as atualizações em chamadas de ferramentas sequenciais.\n\nVocê pode alterar a página pai ou fonte de dados de uma página usando os campos parentPageUrl ou parentDataSourceUrl com qualquer operação. Se apenas alterando o pai, use o comando updateProperties sem propriedades.\n\nExemplos:\n\nAtualizar propriedades de página para uma página em uma fonte de dados com propriedades \"Nome da Tarefa\" e \"Status\":\n// Para atualizações de fonte de dados, primeiro use a ferramenta \"view\" no url user://20ed872b-594c-8102-9f4d-000206937e8e para garantir que a página seja carregada, mesmo se você só se importar com atualizar propriedades.\n// Observe como usamos a chave \"Nome da Tarefa\" em vez de \"title\" porque a fonte de dados tem uma propriedade de título \"Nome da Tarefa\".\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"updateProperties\",\"properties\":{\"Nome da Tarefa\":\"Tarefa 123\",\"Status\":\"Em Andamento\"}}\n\nSubstituir todo o conteúdo e definir um título em uma página independente:\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"replaceContent\",\"properties\":{\"title\":\"Novo Título da Página\"},\"newStr\":\"# Nova Seção\nConteúdo atualizado vai aqui\"}\n\nSubstituir conteúdo específico em uma página:\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"replaceContentRange\",\"selectionWithEllipsis\":\"# Seção Antiga...fim da seção\",\"newStr\":\"# Nova Seção\nConteúdo atualizado vai aqui\"}\n\nInserir conteúdo após texto específico:\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"insertContentAfter\",\"selectionWithEllipsis\":\"Seção anterior...fim da seção\",\"newStr\":\"## Nova Seção\nConteúdo a inserir vai aqui\"}\n\nMover uma página para uma fonte de dados:\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"updateProperties\",\"parentDataSourceUrl\":\"https://www.notion.so/22641c91b3f580808e41c298eedc933f\",\"properties\":{}}\n\nMover uma página para uma página:\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"updateProperties\",\"parentPageUrl\":\"https://www.notion.so/22641c91b3f580808e41c298eedc933f\",\"properties\":{}}\n\nAtualizar conteúdo da página com uma nova sub-página:\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"replaceContent\",\"newStr\":\"# Nova Seção\n<page>Nova Página</page>\"}\n\nAtualizar uma página com um novo banco de dados inline:\n{\"pageUrl\":\"user://20ed872b-594c-8102-9f4d-000206937e8e\",\"command\":\"replaceContent\",\"newStr\":\"# Nova Seção\n<database inline=\"true\">Novo Banco de Dados</database>\"}",
+    "name": "update-page",
+    "parameters": {
+      "properties": {
+        "command": {
+          "description": "O comando a executar:\n- \"updateProperties\": Atualizar propriedades da página (requer campo 'properties')\n- \"replaceContent\": Substituir todo o conteúdo na página (requer campo 'newStr')\n- \"replaceContentRange\": Substituir conteúdo específico na página (requer campos 'selectionWithEllipsis' e 'newStr')\n- \"insertContentAfter\": Inserir conteúdo em uma nova linha após texto específico (requer campos 'selectionWithEllipsis' e 'newStr'). Tenha em mente que como o novo conteúdo é inserido em uma nova linha, você geralmente não deve começar a string com um caractere de nova linha.",
+          "enum": [
+            "updateProperties",
+            "replaceContent",
+            "replaceContentRange",
+            "insertContentAfter"
+          ],
+          "type": "string"
+        },
+        "newStr": {
+          "description": "[Obrigatório quando command=\"replaceContent\", \"replaceContentRange\", ou \"insertContentAfter\"] A nova string.\n- Para replaceContent: A nova string para substituir todo o conteúdo\n- Para replaceContentRange: A nova string para substituir o conteúdo correspondido\n- Para insertContentAfter: O novo conteúdo a inserir após o conteúdo correspondido",
+          "type": "string"
+        },
+        "pageUrl": {
+          "description": "O URL da página a atualizar. Este URL deve ter sido carregado usando a ferramenta 'view', caso contrário a página não será encontrada.",
+          "type": "string"
+        },
+        "parentDataSourceUrl": {
+          "description": "URL da fonte de dados onde você deseja mover a página. Use o atributo url da tag <data-source>.",
+          "type": "string"
+        },
+        "parentPageUrl": {
+          "description": "URL da página pai onde você deseja mover a página. Use o atributo url da tag <page>.",
+          "type": "string"
+        },
+        "properties": {
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ]
+          },
+          "description": "[Obrigatório quando command=\"updateProperties\"] Um objeto JSON que atualiza as propriedades da página.\nPara páginas em uma fonte de dados, use a definição de esquema SQLite mostrada em <sqlite-table>.\nPara páginas fora de uma fonte de dados, a única propriedade permitida é \"title\", que é o título da página em formato markdown inline.\nVeja a seção \"Formatos de Valores de Propriedade\" para formatos aceitos.",
+          "properties": {
+            "title": {
+              "description": "Título para dar à página, se não estiver em uma fonte de dados. Se a página estiver em uma fonte de dados, use apenas propriedades do esquema da fonte de dados.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "selectionWithEllipsis": {
+          "description": "[Obrigatório quando command=\"replaceContentRange\" ou \"insertContentAfter\"] Trecho único de início e fim da string a corresponder no conteúdo da página, incluindo espaços em branco.\nNÃO forneça a string inteira a corresponder. Em vez disso, forneça até as primeiras palavras da string a corresponder, uma elipse, e então até as últimas palavras da string a corresponder. Tenha em mente que a sequência inicial antes da elipse e a sequência final após a elipse não devem se sobrepor; ao escolher sua sequência inicial, certifique-se de que ela termine cedo o suficiente para que você possa incluir uma sequência final adequada não sobreposta após a elipse.\nCertifique-se de fornecer o suficiente do trecho inicial e final para identificar exclusivamente a string a corresponder.\nPor exemplo, para corresponder uma seção inteira, use \"selectionWithEllipsis\":\"# Cabeçalho da seção...último parágrafo.\"\nNão inclua tags <content> em sua seleção.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pageUrl",
+        "command"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Exclui uma ou mais páginas do Notion movendo-as para a lixeira.",
+    "name": "delete-pages",
+    "parameters": {
+      "properties": {
+        "pageUrls": {
+          "description": "URLs das páginas a excluir. Use o atributo url da tag <page>.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "pageUrls"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Use query-data-sources para executar uma consulta SQLite sobre páginas em Fontes de Dados ou consultar uma visualização específica por ID. Esta ferramenta pode ser usada para extrair ou analisar dados estruturados baseados em fontes de dados específicas que estão visíveis em seu contexto.\n\nModo 1: Consulta SQL sobre Fontes de Dados\nVocê pode consultar e juntar qualquer uma das tabelas no conjunto de Fontes de Dados em dataSourceUrls, definidas por sua tag <sqlite-table>.\nApenas consultas somente leitura são permitidas. A ferramenta não executará operações UPDATE, INSERT ou DELETE.\nCertifique-se de ter visualizado todas as fontes de dados que você está consultando.\nQuando possível, inclua a coluna url na cláusula select.\n\nSe você estiver consultando uma coluna que é URLs de página relacionadas a outra fonte de dados, visualize essa fonte de dados primeiro e então faça uma consulta JOIN para obter os dados da página relacionada.\n\nExemplo 1: consultando a fonte de dados OKRs com URL https://www.notion.com/signup, encontrando todas as páginas com status \"Em andamento\" e vencidas:\n{\n\tmode: \"sql\",\n\tdataSourceUrls: [\"https://www.notion.com/signup\"],\n\tquery: \"SELECT * FROM \"https://www.notion.com/signup\" WHERE \"Status\" = ? and \"Vencida\" = ?\",\n\tparams: [\"Em andamento\", \"__YES__\"],\n}\n\nExemplo 2: juntando duas fontes de dados relacionadas, OKRs (https://www.notion.com/signup) e Times (https://www.notion.com/contact-sales), e obtendo todos os OKRs com seus nomes de time:\n{\n\tmode: \"sql\",\n\tdataSourceUrls: [\"https://www.notion.com/signup\", \"https://www.notion.com/contact-sales\"],\n\tquery: \"SELECT o.*, t.\"Nome do Time\" FROM \"https://www.notion.com/signup\" o JOIN \"https://www.notion.com/contact-sales\" t ON t.url IN (SELECT value FROM json_each(o.\"Time\"))\",\n\tparams: [],\n}\n\nDicas SQLite:\n- O nome da tabela é o URL da fonte de dados, e deve estar entre aspas duplas\n- Nomes de coluna: Aspas duplas \" para espaços/caracteres especiais (\"Nome da Tarefa\"), nenhum necessário para nomes simples (user_id)\n- Valores de string: Aspas simples com aspas duplas dobradas para escape ('Won''t Fix', 'O''Reilly')\n- Aspas duplas em identificadores: Dobre-as (\"coluna\"\"com\"\"aspas\")\n- Palavras reservadas devem usar aspas duplas (\"order\", \"where\")\n\nRegras de coluna consultável:\n- Apenas colunas dos seguintes tipos podem ser consultadas usando esta ferramenta: [title, person, file, text, checkbox, url, email, phone_number, created_by, last_edited_by, select, multi_select, status, date, created_time, last_edited_time, relation, number, auto_increment_id, location]\n- Outros tipos de coluna não estarão na tabela SQLite ou resultados\n- Colunas não consultáveis ainda são visíveis para o usuário na UI\n\nModo 2: Consultar uma visualização específica\nExemplo: consultando uma visualização específica com URL 20ed872b-594c-8102-9f4d-000206937e8e:\n{\n\tmode: \"view\",\n\tviewUrl: \"20ed872b-594c-8102-9f4d-000206937e8e\"\n}\n\nEsta ferramenta retornará no máximo 100 linhas de uma vez, com um sinalizador hasMore.\nSe você precisar de mais linhas, use o hasMore para decidir se deve paginar.",
+    "name": "query-data-sources",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "dataSourceUrls": {
+          "description": "Os URLs das fontes de dados a consultar. Obrigatório quando usar modo de consulta SQL.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mode": {
+          "description": "O modo a usar para a consulta.",
+          "enum": [
+            "sql",
+            "view"
+          ],
+          "type": "string"
+        },
+        "params": {
+          "description": "Valores dos parâmetros a serem usados na consulta.",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "query": {
+          "description": "Consulta SQLite com parâmetros opcionais como marcas ?.\nDeve ser uma consulta somente leitura.\nObrigatório quando usar modo de consulta SQL.",
+          "type": "string"
+        },
+        "viewUrl": {
+          "description": "O URL da visualização específica a consultar. Obrigatório quando usar modo de visualização.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Cria um novo Banco de Dados.\n\nRequisitos de formato como uma lista de marcadores markdown.\nCada requisito deve ser uma declaração que descreva claramente algo que você quer que seja verdadeiro sobre o Banco de Dados após ter sido criado.\nNÃO tente referenciar as mensagens do usuário nos requisitos, pois o sub-agente de criação do Banco de Dados NÃO poderá vê-las. Certifique-se de incluir todas as informações importantes em cheio.\nSe você precisar referir-se a entidades nos requisitos, use os URLs das entidades e forneça contexto.\n\nAo adicionar uma relação bidirecional entre fontes de dados, lembre-se de que adicioná-la a uma fonte de dados também adicionará uma propriedade na outra, então certifique-se de não criar acidentalmente uma relação bidirecional duas vezes.\nAo criar relações, mencione ambos os URLs de fonte de dados nos requisitos, mesmo se uma fonte de dados estiver em outro banco de dados.\nRelações devem ser definidas por URLs de fonte de dados, não URLs de página ou banco de dados.\n\n\nBancos de dados devem ter pelo menos uma visualização.",
+    "name": "create-database",
+    "parameters": {
+      "properties": {
+        "dataSourceRequirements": {
+          "description": "Forneça requisitos detalhados para criar ou atualizar o esquema das fontes de dados.\nSe você quiser criar múltiplas fontes de dados, execute todas as atualizações simultaneamente especificando os requisitos para cada uma nesta string.\nOs requisitos não podem especificar o conteúdo das fontes de dados, apenas o esquema. Se você quiser adicionar páginas a uma fonte de dados, você precisa usar a ferramenta 'create-pages'.\nOs requisitos não podem especificar valores padrão para propriedades.\nObserve que você não pode criar múltiplas Fontes de dados em um único Banco de dados. Você deve criar múltiplos Bancos de dados, um para cada Fonte de dados própria.",
+          "type": "string"
+        },
+        "name": {
+          "description": "O nome para o Banco de Dados.",
+          "type": "string"
+        },
+        "parentPageUrl": {
+          "description": "URL opcional da página pai onde você deseja criar este novo Banco de Dados. Use o atributo url da tag <page>. Se vazio, o Banco de Dados será criado como uma página privada de nível superior.",
+          "type": "string"
+        },
+        "replacesBlankParentPage": {
+          "description": "Quando verdadeiro, o parentPageUrl deve apontar para uma página em branco (uma página sem conteúdo). A página em branco será excluída e o Banco de Dados será criado em seu lugar, herdando o pai da página em branco.",
+          "type": "boolean"
+        },
+        "viewRequirements": {
+          "description": "Forneça requisitos detalhados para criar as visualizações. Certifique-se de fornecer os URLs de fonte de dados de quaisquer fontes de dados existentes que precisam ser usadas pelas visualizações, ex. https://pinterest.com/pin/create/button/?url=https://www.toolify.ai/ai-news/master-notion-ai-beginners-guide-89033.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "description": "Atualiza um único Banco de Dados existente.\n\nRequisitos de formato como uma lista de marcadores markdown.\nCada requisito deve ser uma declaração que descreva claramente algo que você quer que seja verdadeiro sobre o Banco de Dados após ter sido atualizado.\nNÃO tente referenciar as mensagens do usuário nos requisitos, pois o sub-agente de atualização do Banco de Dados NÃO poderá vê-las. Certifique-se de incluir todas as informações importantes em cheio.\nSe você precisar referir-se a entidades nos requisitos, use os URLs das entidades e forneça contexto.\nSe o usuário pedir explicitamente lembretes/notificações em propriedades de data, adicione default_reminder à propriedade de data aqui\nNão adicione quaisquer requisitos adicionais que não sejam explicitamente necessários para cumprir a solicitação do usuário.\n\nModifique apenas visualizações ou fontes de dados próprias do banco de dados especificado.\nAo adicionar uma relação bidirecional entre fontes de dados, lembre-se de que adicioná-la a uma fonte de dados também adicionará uma propriedade na outra, então certifique-se de não criar acidentalmente uma relação bidirecional duas vezes.\nAo criar relações, mencione ambos os URLs de fonte de dados nos requisitos, mesmo se uma fonte de dados estiver em outro banco de dados.\nRelações devem ser definidas por URLs de fonte de dados, não URLs de página ou banco de dados.\n\nBancos de dados devem ter pelo menos uma visualização.\nSe você quiser fazer uma visualização de calendário ou linha do tempo, certifique-se de que a fonte de dados tenha pelo menos uma propriedade de data.\n\n# Bancos de Dados Inline\nIMPORTANTE: Você não pode atualizar o atributo \"inline\" de um banco de dados com esta ferramenta. Use uma ferramenta de página para atualizar o atributo inline.\nSe você criou um banco de dados inline diferente via ferramentas de página e quiser criar uma relação para ele, você deve usar a ferramenta view para obter seu URL de fonte de dados para definir a relação.\n\nNota sobre alteração de tipos de propriedade de fonte de dados: alterar o tipo de uma propriedade é uma operação com perda, os dados de propriedade existentes serão PERDIDOS para todas as páginas na fonte de dados. Se a tarefa requer preservar dados existentes, você precisa fazer o seguinte em ordem:\n1. Obter os valores de propriedade existentes para todas as páginas na fonte de dados\n2. Alterar o tipo da propriedade para o novo tipo\n3. Atualizar os valores de propriedade para todas as páginas na fonte de dados para o novo tipo",
+    "name": "update-database",
+    "parameters": {
+      "properties": {
+        "dataSourceRequirements": {
+          "description": "Forneça requisitos detalhados para atualizar o esquema das fontes de dados.\nSe você quiser criar ou atualizar múltiplas fontes de dados, execute todas as atualizações simultaneamente especificando os requisitos para cada uma nesta string.\nCertifique-se de fornecer os URLs de fonte de dados de quaisquer fontes de dados existentes que precisam ser atualizadas, ex. https://pinterest.com/pin/create/button/?url=https://www.toolify.ai/ai-news/master-notion-ai-beginners-guide-89033.\nNOTA IMPORTANTE: esta ferramenta NÃO fará quaisquer atualizações às páginas na fonte de dados, apenas seu esquema.\nOs requisitos não podem especificar valores padrão para propriedades.\nObserve que você não pode criar múltiplas fontes de dados em um único banco de dados. Você deve criar múltiplos bancos de dados, um para cada fonte de dados própria.",
+          "type": "string"
+        },
+        "databaseUrl": {
+          "description": "O URL do Banco de Dados a atualizar.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Opcional, o novo nome do Banco de Dados. Se o Banco de Dados tiver apenas uma Fonte de Dados, isso será automaticamente sincronizado com o nome da Fonte de Dados.",
+          "type": "string"
+        },
+        "viewRequirements": {
+          "description": "Forneça requisitos detalhados para atualizar as visualizações. Certifique-se de fornecer os URLs de fonte de dados de quaisquer fontes de dados existentes que precisam ser usadas pelas visualizações, ex. https://pinterest.com/pin/create/button/?url=https://www.toolify.ai/ai-news/master-notion-ai-beginners-guide-89033.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "databaseUrl"
+      ],
+      "type": "object"
+    }
+  }
+]

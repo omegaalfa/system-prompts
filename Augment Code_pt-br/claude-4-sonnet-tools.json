@@ -1,0 +1,514 @@
+{
+  "tools": [
+    {
+      "name": "str-replace-editor",
+      "description": "Ferramenta para editar arquivos.\n* `path` é um caminho de arquivo relativo à raiz do workspace\n* `insert` e comandos `str_replace` saem um snippet da seção editada para cada entrada. Este snippet reflete o estado final do arquivo após todas as edições e formatação automática do IDE terem sido aplicadas.\n* Gere `instruction_reminder` primeiro para se lembrar de limitar as edições a no máximo 150 linhas.\n\nNotas para usar o comando `str_replace`:\n* Especifique propriedades `old_str_1`, `new_str_1`, `old_str_start_line_number_1` e `old_str_end_line_number_1` para a primeira substituição, `old_str_2`, `new_str_2`, `old_str_start_line_number_2` e `old_str_end_line_number_2` para a segunda substituição, e assim por diante\n* Os parâmetros `old_str_start_line_number_1` e `old_str_end_line_number_1` são números de linha baseados em 1\n* Ambos `old_str_start_line_number_1` e `old_str_end_line_number_1` são INCLUSIVOS\n* O parâmetro `old_str_1` deve corresponder EXATAMENTE a uma ou mais linhas consecutivas do arquivo original. Tenha cuidado com espaços em branco!\n* `old_str_1` vazio é permitido apenas quando o arquivo está vazio ou contém apenas espaços em branco\n* É importante especificar `old_str_start_line_number_1` e `old_str_end_line_number_1` para desambiguar entre múltiplas ocorrências de `old_str_1` no arquivo\n* Certifique-se de que `old_str_start_line_number_1` e `old_str_end_line_number_1` não se sobreponham com outras entradas `old_str_start_line_number_2` e `old_str_end_line_number_2`\n* O parâmetro `new_str_1` deve conter as linhas editadas que devem substituir `old_str_1`. Pode ser uma string vazia para deletar conteúdo\n* Para fazer múltiplas substituições em uma chamada de ferramenta, adicione múltiplos conjuntos de parâmetros de substituição. Por exemplo, propriedades `old_str_1`, `new_str_1`, `old_str_start_line_number_1` e `old_str_end_line_number_1` para a primeira substituição, `old_str_2`, `new_str_2`, `old_str_start_line_number_2`, `old_str_end_line_number_2` para a segunda substituição, etc.\n\nNotas para usar o comando `insert`:\n* Especifique propriedades `insert_line_1` e `new_str_1` para a primeira inserção, `insert_line_2` e `new_str_2` para a segunda inserção, e assim por diante\n* O parâmetro `insert_line_1` especifica o número da linha após a qual inserir a nova string\n* O parâmetro `insert_line_1` é número de linha baseado em 1\n* Para inserir no início do arquivo, use `insert_line_1: 0`\n* Para fazer múltiplas inserções em uma chamada de ferramenta, adicione múltiplos conjuntos de parâmetros de inserção. Por exemplo, propriedades `insert_line_1` e `new_str_1` para a primeira inserção, `insert_line_2` e `new_str_2` para a segunda inserção, etc.\n\nIMPORTANTE:\n* Esta é a única ferramenta que você deve usar para editar arquivos.\n* Se falhar, tente o seu melhor para corrigir entradas e tentar novamente.\n* NÃO recorra a remover o arquivo inteiro e recriá-lo do zero.\n* NÃO use sed ou qualquer outra ferramenta de linha de comando para editar arquivos.\n* Tente encaixar o máximo de edições possível em uma chamada de ferramenta\n* Use a ferramenta view para ler arquivos antes de editá-los.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "enum": ["str_replace", "insert"],
+            "description": "Os comandos a executar. Opções permitidas são: 'str_replace', 'insert'."
+          },
+          "path": {
+            "type": "string",
+            "description": "Caminho completo para arquivo relativo à raiz do workspace, ex. 'services/api_proxy/file.py' ou 'services/api_proxy'."
+          },
+          "instruction_reminder": {
+            "type": "string",
+            "description": "Lembrete para limitar edições a no máximo 150 linhas. Deve ser exatamente esta string: 'ALWAYS BREAK DOWN EDITS INTO SMALLER CHUNKS OF AT MOST 150 LINES EACH.'"
+          },
+          "old_str_1": {
+            "type": "string",
+            "description": "Parâmetro necessário do comando `str_replace` contendo a string em `path` a substituir."
+          },
+          "new_str_1": {
+            "type": "string",
+            "description": "Parâmetro necessário do comando `str_replace` contendo a nova string. Pode ser uma string vazia para deletar conteúdo. Parâmetro necessário do comando `insert` contendo a string a inserir."
+          },
+          "old_str_start_line_number_1": {
+            "type": "integer",
+            "description": "O número da linha da primeira linha de `old_str_1` no arquivo. Isso é usado para desambiguar entre múltiplas ocorrências de `old_str_1` no arquivo."
+          },
+          "old_str_end_line_number_1": {
+            "type": "integer",
+            "description": "O número da linha da última linha de `old_str_1` no arquivo. Isso é usado para desambiguar entre múltiplas ocorrências de `old_str_1` no arquivo."
+          },
+          "insert_line_1": {
+            "type": "integer",
+            "description": "Parâmetro necessário do comando `insert`. O número da linha após a qual inserir a nova string. Este número de linha é relativo ao estado do arquivo antes de quaisquer inserções na chamada de ferramenta atual terem sido aplicadas."
+          }
+        },
+        "required": ["command", "path", "instruction_reminder"]
+      }
+    },
+    {
+      "name": "open-browser",
+      "description": "Abrir uma URL no navegador padrão.\n\n1. A ferramenta recebe uma URL e a abre no navegador padrão.\n2. A ferramenta não retorna nenhum conteúdo. É destinada para o usuário inspecionar visualmente e interagir com a página. Você não terá acesso a ela.\n3. Você não deve usar `open-browser` em uma URL que você já chamou a ferramenta antes na história da conversa, porque a página já está aberta no navegador do usuário e o usuário pode vê-la e atualizá-la ele mesmo. Cada vez que você chama `open-browser`, isso fará o usuário pular para a janela do navegador, o que é altamente irritante para o usuário.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "A URL a abrir no navegador."
+          }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "diagnostics",
+      "description": "Obter problemas (erros, avisos, etc.) do IDE. Você deve fornecer os caminhos dos arquivos para os quais deseja obter problemas.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Lista necessária de caminhos de arquivo para obter problemas do IDE."
+          }
+        },
+        "required": ["paths"]
+      }
+    },
+    {
+      "name": "read-terminal",
+      "description": "Ler saída do terminal ativo ou mais recentemente usado do VSCode.\n\nPor padrão, lê todo o texto visível no terminal, não apenas a saída do comando mais recente.\n\nSe você quiser ler apenas o texto selecionado no terminal, defina `only_selected=true` na entrada da ferramenta.\nFaça isso apenas se você souber que o usuário selecionou texto que você quer ler.\n\nNote que isso é não relacionado às ferramentas list-processes e read-process, que interagem com processos que foram lançados com a ferramenta \"launch-process\".",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "only_selected": {
+            "type": "boolean",
+            "description": "Se deve ler apenas o texto selecionado no terminal."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "git-commit-retrieval",
+      "description": "Esta ferramenta é o motor de contexto da Augment com consciência do histórico de commits git. Ela:\n1. Recebe uma descrição em linguagem natural do código que você está procurando;\n2. Usa o histórico de commits git como o único contexto para recuperação;\n3. Caso contrário, funciona como a ferramenta padrão codebase-retrieval.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "information_request": {
+            "type": "string",
+            "description": "Uma descrição das informações que você precisa."
+          }
+        },
+        "required": ["information_request"]
+      }
+    },
+    {
+      "name": "launch-process",
+      "description": "Lançar um novo processo com um comando shell. Um processo pode ser aguardando (`wait=true`) ou não aguardando (`wait=false`).\n\nSe `wait=true`, lança o processo em um terminal interativo, e aguarda o processo completar até\n`max_wait_seconds` segundos. Se o processo terminar durante este período, a chamada da ferramenta retorna. Se o timeout\nexpirar, o processo continuará executando em segundo plano mas a chamada da ferramenta retornará. Você pode então\ninteragir com o processo usando as outras ferramentas de processo.\n\nNota: Apenas um processo aguardando pode estar executando por vez. Se você tentar lançar um processo com `wait=true`\nenquanto outro está executando, a ferramenta retornará um erro.\n\nSe `wait=false`, lança um processo em segundo plano em um terminal separado. Isso retorna imediatamente, enquanto o\nprocesso continua executando em segundo plano.\n\nNotas:\n- Use processos `wait=true` quando o comando for esperado ser curto, ou quando você não puder\nprosseguir com sua tarefa até o processo estar completo. Use `wait=false` para processos que são\nesperados executar em segundo plano, como iniciar um servidor com o qual você precisará interagir, ou um\nprocesso de longa duração que não precisa completar antes de prosseguir com a tarefa.\n- Se esta ferramenta retornar enquanto o processo ainda está executando, você pode continuar a interagir com o processo\nusando as outras ferramentas disponíveis. Você pode aguardar pelo processo, ler dele, escrever nele, matá-lo, etc.\n- Você pode usar esta ferramenta para interagir com a versão de controle de versão local do usuário. Não use a\nferramenta de recuperação para esse propósito.\n- Se houver uma ferramenta mais específica disponível que possa realizar a função, use essa ferramenta em vez\ndesta.\n\nO OS é win32. O shell é 'bash'.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "O comando shell a executar."
+          },
+          "wait": {
+            "type": "boolean",
+            "description": "Se deve aguardar o comando completar."
+          },
+          "max_wait_seconds": {
+            "type": "number",
+            "description": "Número de segundos para aguardar o comando completar. Apenas relevante quando wait=true. 10 minutos podem ser um bom padrão: aumente daí se necessário."
+          },
+          "cwd": {
+            "type": "string",
+            "description": "Parâmetro necessário. Caminho absoluto para o diretório de trabalho do comando."
+          }
+        },
+        "required": ["command", "wait", "max_wait_seconds", "cwd"]
+      }
+    },
+    {
+      "name": "kill-process",
+      "description": "Matar um processo pelo seu ID de terminal.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "terminal_id": {
+            "type": "integer",
+            "description": "ID de terminal a matar."
+          }
+        },
+        "required": ["terminal_id"]
+      }
+    },
+    {
+      "name": "read-process",
+      "description": "Ler saída de um terminal.\n\nSe `wait=true` e o processo ainda não completou, aguarda o terminal completar até `max_wait_seconds` segundos antes de retornar sua saída.\n\nSe `wait=false` ou o processo já completou, retorna imediatamente com a saída atual.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "terminal_id": {
+            "type": "integer",
+            "description": "ID de terminal para ler."
+          },
+          "wait": {
+            "type": "boolean",
+            "description": "Se deve aguardar o comando completar."
+          },
+          "max_wait_seconds": {
+            "type": "number",
+            "description": "Número de segundos para aguardar o comando completar. Apenas relevante quando wait=true. 1 minuto pode ser um bom padrão: aumente daí se necessário."
+          }
+        },
+        "required": ["terminal_id", "wait", "max_wait_seconds"]
+      }
+    },
+    {
+      "name": "write-process",
+      "description": "Escrever entrada para um terminal.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "terminal_id": {
+            "type": "integer",
+            "description": "ID de terminal para escrever."
+          },
+          "input_text": {
+            "type": "string",
+            "description": "Texto a escrever para o stdin do processo."
+          }
+        },
+        "required": ["terminal_id", "input_text"]
+      }
+    },
+    {
+      "name": "list-processes",
+      "description": "Listar todos os terminais conhecidos criados com a ferramenta launch-process e seus estados.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "web-search",
+      "description": "Pesquisar na web por informações. Retorna resultados em formato markdown.\nCada resultado inclui a URL, título, e um snippet da página se disponível.\n\nEsta ferramenta usa a API de Pesquisa Personalizada do Google para encontrar páginas web relevantes.",
+      "parameters": {
+        "type": "object",
+        "title": "WebSearchInput",
+        "description": "Esquema de entrada para a ferramenta de pesquisa web.",
+        "properties": {
+          "query": {
+            "title": "Query",
+            "description": "A consulta de pesquisa a enviar.",
+            "type": "string"
+          },
+          "num_results": {
+            "title": "Num Results",
+            "description": "Número de resultados a retornar",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 10,
+            "type": "integer"
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "web-fetch",
+      "description": "Busca dados de uma página web e converte em Markdown.\n\n1. A ferramenta recebe uma URL e retorna o conteúdo da página em formato Markdown;\n2. Se o retorno não for Markdown válido, significa que a ferramenta não pode analisar com sucesso esta página.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "A URL a buscar."
+          }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "codebase-retrieval",
+      "description": "Esta ferramenta é o motor de contexto da Augment, o melhor motor de contexto de código-fonte do mundo. Ela:\n1. Recebe uma descrição em linguagem natural do código que você está procurando;\n2. Usa uma suíte proprietária de modelo de recuperação/embedding que produz o recall de maior qualidade de snippets de código relevantes de todo o código-fonte;\n3. Mantém um índice em tempo real do código-fonte, então os resultados são sempre atualizados e refletem o estado atual do código-fonte;\n4. Pode recuperar através de diferentes linguagens de programação;\n5. Apenas reflete o estado atual do código-fonte no disco, e não tem informações sobre controle de versão ou histórico de código.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "information_request": {
+            "type": "string",
+            "description": "Uma descrição das informações que você precisa."
+          }
+        },
+        "required": ["information_request"]
+      }
+    },
+    {
+      "name": "remove-files",
+      "description": "Remover arquivos. USE apenas esta ferramenta para deletar arquivos no workspace do usuário. Esta é a única ferramenta segura para deletar arquivos de uma forma que o usuário possa desfazer a mudança. NÃO use shell ou ferramentas launch-process para remover arquivos.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "file_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Os caminhos dos arquivos a remover."
+          }
+        },
+        "required": ["file_paths"]
+      }
+    },
+    {
+      "name": "save-file",
+      "description": "Salvar um novo arquivo. Use esta ferramenta para escrever novos arquivos com o conteúdo anexado. Gere `instructions_reminder` primeiro para se lembrar de limitar o conteúdo do arquivo a no máximo 300 linhas. NÃO PODE modificar arquivos existentes. NÃO use esta ferramenta para editar um arquivo existente sobrescrevendo-o inteiramente. Use a ferramenta str-replace-editor para editar arquivos existentes.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "instructions_reminder": {
+            "type": "string",
+            "description": "Deve ser exatamente esta string: 'LIMIT THE FILE CONTENT TO AT MOST 300 LINES. IF MORE CONTENT NEEDS TO BE ADDED USE THE str-replace-editor TOOL TO EDIT THE FILE AFTER IT HAS BEEN CREATED.'"
+          },
+          "path": {
+            "type": "string",
+            "description": "O caminho do arquivo a salvar."
+          },
+          "file_content": {
+            "type": "string",
+            "description": "O conteúdo do arquivo."
+          },
+          "add_last_line_newline": {
+            "type": "boolean",
+            "description": "Se deve adicionar uma nova linha no final do arquivo (padrão: true)."
+          }
+        },
+        "required": ["instructions_reminder", "path", "file_content"]
+      }
+    },
+    {
+      "name": "view_tasklist",
+      "description": "Ver a lista de tarefas atual para a conversa.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "reorganize_tasklist",
+      "description": "Reorganizar a estrutura da lista de tarefas para a conversa atual. Use isso apenas para reestruturação major como reordenar tarefas, mudar hierarquia. Para atualizações de tarefa individual, use ferramenta update_tasks.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "markdown": {
+            "type": "string",
+            "description": "A representação markdown da lista de tarefas a atualizar. Deve estar no formato especificado pela ferramenta view_tasklist. Novas tarefas devem ter um UUID de 'NEW_UUID'. Deve conter exatamente uma tarefa raiz com hierarquia adequada usando indentação de traço."
+          }
+        },
+        "required": ["markdown"]
+      }
+    },
+    {
+      "name": "update_tasks",
+      "description": "Atualizar propriedades de uma ou mais tarefas (estado, nome, descrição). Pode atualizar uma tarefa única ou múltiplas tarefas em uma chamada. Use isso em sequências complexas de trabalho para planejar, rastrear progresso, e gerenciar trabalho.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "description": "Array de tarefas a atualizar. Cada tarefa deve ter um task_id e as propriedades a atualizar.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "task_id": {
+                  "type": "string",
+                  "description": "O UUID da tarefa a atualizar."
+                },
+                "state": {
+                  "type": "string",
+                  "enum": ["NOT_STARTED", "IN_PROGRESS", "CANCELLED", "COMPLETE"],
+                  "description": "Novo estado da tarefa. Use NOT_STARTED para [ ], IN_PROGRESS para [/], CANCELLED para [-], COMPLETE para [x]."
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Novo nome da tarefa."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Nova descrição da tarefa."
+                }
+              },
+              "required": ["task_id"]
+            }
+          }
+        },
+        "required": ["tasks"]
+      }
+    },
+    {
+      "name": "add_tasks",
+      "description": "Adicionar uma ou mais novas tarefas à lista de tarefas. Pode adicionar uma tarefa única ou múltiplas tarefas em uma chamada. Tarefas podem ser adicionadas como subtarefas ou após tarefas específicas. Use isso ao planejar sequências complexas de trabalho.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "description": "Array de tarefas a criar. Cada tarefa deve ter nome e descrição.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "O nome da nova tarefa."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "A descrição da nova tarefa."
+                },
+                "state": {
+                  "type": "string",
+                  "enum": ["NOT_STARTED", "IN_PROGRESS", "CANCELLED", "COMPLETE"],
+                  "description": "Estado inicial da tarefa. Padrão para NOT_STARTED."
+                },
+                "parent_task_id": {
+                  "type": "string",
+                  "description": "UUID da tarefa pai se isso deve ser uma subtarefa."
+                },
+                "after_task_id": {
+                  "type": "string",
+                  "description": "UUID da tarefa após a qual esta tarefa deve ser inserida."
+                }
+              },
+              "required": ["name", "description"]
+            }
+          }
+        },
+        "required": ["tasks"]
+      }
+    },
+    {
+      "name": "remember",
+      "description": "Chame esta ferramenta quando o usuário pedir para você:\n- lembrar algo\n- criar memória/memórias\n\nUse esta ferramenta apenas com informações que podem ser úteis a longo prazo.\nNão use esta ferramenta para informações temporárias.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "memory": {
+            "type": "string",
+            "description": "A memória concisa (1 frase) a lembrar."
+          }
+        },
+        "required": ["memory"]
+      }
+    },
+    {
+      "name": "render-mermaid",
+      "description": "Renderizar um diagrama Mermaid da definição fornecida. Esta ferramenta recebe código de definição de diagrama Mermaid e o renderiza como um diagrama interativo com controles de pan/zoom e funcionalidade de cópia.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "diagram_definition": {
+            "type": "string",
+            "description": "O código de definição de diagrama Mermaid a renderizar"
+          },
+          "title": {
+            "type": "string",
+            "default": "Mermaid Diagram",
+            "description": "Título opcional para o diagrama"
+          }
+        },
+        "required": ["diagram_definition"]
+      }
+    },
+    {
+      "name": "view-range-untruncated",
+      "description": "Ver um intervalo específico de linhas do conteúdo não truncado",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reference_id": {
+            "type": "string",
+            "description": "O ID de referência do conteúdo truncado (encontrado no rodapé de truncamento)"
+          },
+          "start_line": {
+            "type": "integer",
+            "description": "O número da linha inicial (baseado em 1, inclusivo)"
+          },
+          "end_line": {
+            "type": "integer",
+            "description": "O número da linha final (baseado em 1, inclusivo)"
+          }
+        },
+        "required": ["reference_id", "start_line", "end_line"]
+      }
+    },
+    {
+      "name": "search-untruncated",
+      "description": "Pesquisar por um termo dentro do conteúdo não truncado",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reference_id": {
+            "type": "string",
+            "description": "O ID de referência do conteúdo truncado (encontrado no rodapé de truncamento)"
+          },
+          "search_term": {
+            "type": "string",
+            "description": "O termo a pesquisar dentro do conteúdo"
+          },
+          "context_lines": {
+            "type": "integer",
+            "description": "Número de linhas de contexto a incluir antes e depois das correspondências (padrão: 2)"
+          }
+        },
+        "required": ["reference_id", "search_term"]
+      }
+    },
+    {
+      "name": "view",
+      "description": "Ferramenta personalizada para ver arquivos e diretórios e pesquisar dentro de arquivos com consulta regex\n* `path` é um caminho de arquivo ou diretório relativo à raiz do workspace\n* Para arquivos: exibe o resultado de aplicar `cat -n` ao arquivo\n* Para diretórios: lista arquivos e subdiretórios até 2 níveis profundos\n* Se a saída for longa, será truncada e marcada com `<response clipped>`\n\nPesquisa regex (apenas para arquivos):\n* Use `search_query_regex` para pesquisar padrões no arquivo usando expressões regulares\n* Use parâmetro `case_sensitive` para controlar sensibilidade a maiúsculas (padrão: false)\n* Ao usar pesquisa regex, apenas linhas correspondentes e seu contexto serão mostradas\n* Use `context_lines_before` e `context_lines_after` para controlar quantas linhas de contexto mostrar (padrão: 5)\n* Seções não correspondentes entre correspondências são substituídas por `...`\n* Se `view_range` também for especificado, a pesquisa é limitada a esse intervalo\n\nUse a seguinte sintaxe regex para `search_query_regex`:\n\n# Referência de Sintaxe Regex\n\nApenas o recurso regex central comum entre JavaScript e Rust são suportados.\n\n## Sintaxe regex suportada\n\n* **Escaping** - Escape metacaracteres com uma barra invertida: `\\.` `\\+` `\\?` `\\*` `\\|` `\\(` `\\)` `\\[`.\n* **Dot** `.` - corresponde a qualquer caractere **exceto nova linha** (`\\n`, `\\r`, `\\u2028`, `\\u2029`).\n* **Classes de caracteres** - `[abc]`, intervalos como `[a-z]`, e negação `[^\u2026]`. Use intervalos ASCII explícitos; evite atalhos como `\\d`.\n* **Alternação** - `foo|bar` escolhe a ramificação mais à esquerda bem-sucedida.\n* **Quantificadores** - `*`, `+`, `?`, `{n}`, `{n,}`, `{n,m}` (ganancioso). Adicione `?` após qualquer um para a versão preguiçosa.\n* **Âncoras** - `^` (início de linha), `$` (fim de linha).\n* **Caracteres especiais** - Use `\\t` para caractere de tabulação\n\n---\n\n## Não Use (Não Suportado)\n\n* Caractere de nova linha `\\n`. Apenas modo de linha única é suportado.\n* Look-ahead / look-behind `(?= \u2026 )`, `(?<= \u2026 )`.\n* Back-references `\\1`, `\\k<name>`.\n* Grupos `(?<name> \u2026 )`, `(?P<name> \u2026 )`.\n* Classes de atalho `\\d`, `\\s`, `\\w`, `\\b`, escapes de propriedade Unicode `\\p{\u2026}`.\n* Flags dentro do padrão `(?i)`, `(?m)`, etc.\n* Recursão, condicionais, grupos atômicos, quantificadores possessivos\n* Escapes Unicode como estes `\\u{1F60A}` ou `\\u1F60A`.\n\n\nNotas para usar a ferramenta:\n* Fortemente prefira usar `search_query_regex` em vez de `view_range` ao procurar um símbolo específico no arquivo.\n* Use o parâmetro `view_range` para especificar um intervalo de linhas a ver, ex. [501, 1000] mostrará linhas de 501 a 1000\n* Índices são baseados em 1 e inclusivos\n* Definir `[start_line, -1]` mostra todas as linhas de `start_line` ao final do arquivo\n* Os parâmetros `view_range` e `search_query_regex` são aplicáveis apenas ao ver arquivos, não diretórios",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Caminho completo para arquivo ou diretório relativo à raiz do workspace, ex. 'services/api_proxy/file.py' ou 'services/api_proxy'."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["file", "directory"],
+            "description": "Tipo de caminho a ver. Opções permitidas são: 'file', 'directory'."
+          },
+          "view_range": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Parâmetro opcional quando `path` aponta para um arquivo. Se nenhum for dado, o arquivo completo é mostrado. Se fornecido, o arquivo será mostrado no intervalo de número de linha indicado, ex. [501, 1000] mostrará linhas de 501 a 1000. Índices são baseados em 1 e inclusivos. Definir `[start_line, -1]` mostra todas as linhas de `start_line` ao final do arquivo."
+          },
+          "search_query_regex": {
+            "type": "string",
+            "description": "Parâmetro opcional apenas para arquivos. O padrão regex a pesquisar. Use apenas sintaxe regex central comum a JavaScript e Rust. Veja o guia de sintaxe regex na descrição da ferramenta. Quando especificado, apenas linhas correspondentes (mais linhas de contexto) serão mostradas. Seções não correspondentes são substituídas por '...'."
+          },
+          "case_sensitive": {
+            "type": "boolean",
+            "default": false,
+            "description": "Se a pesquisa regex deve ser sensível a maiúsculas. Usado apenas quando search_query_regex é especificado. Padrão: false (insensível a maiúsculas)."
+          },
+          "context_lines_before": {
+            "type": "integer",
+            "default": 5,
+            "description": "Número de linhas a mostrar antes de cada correspondência regex. Usado apenas quando search_query_regex é especificado. Padrão: 5."
+          },
+          "context_lines_after": {
+            "type": "integer",
+            "default": 5,
+            "description": "Número de linhas a mostrar após cada correspondência regex. Usado apenas quando search_query_regex é especificado. Padrão: 5."
+          }
+        },
+        "required": ["path", "type"]
+      }
+    }
+  ]
+}

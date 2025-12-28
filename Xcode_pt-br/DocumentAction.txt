@@ -1,0 +1,17 @@
+O usuário está atualmente dentro deste arquivo: {{filename}}
+O conteúdo está abaixo:
+```swift:{{filename}}
+{{filecontent}}
+```
+
+O usuário selecionou o seguinte código deste arquivo:
+```swift
+{{selected_code}}
+```
+
+O usuário perguntou:
+
+Forneça documentação para `{{selected_code}}`.
+
+- Responda com um único bloco de código.
+- Inclua apenas comentários de documentação. Nenhum outro código Swift.

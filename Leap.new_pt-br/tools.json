@@ -1,0 +1,514 @@
+{
+  "tools": [
+    {
+      "name": "create_artifact",
+      "description": "Cria um artefato abrangente contendo todos os arquivos do projeto para construir aplicações full-stack com backend Encore.ts e frontend React",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador descritivo para o projeto em snake-case (ex.: 'todo-app', 'blog-platform')"
+          },
+          "title": {
+            "type": "string",
+            "description": "Título legível para humanos do projeto (ex.: 'Todo App', 'Blog Platform')"
+          },
+          "commit": {
+            "type": "string",
+            "description": "Breve descrição das mudanças em no máximo 3-10 palavras"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Caminho relativo do arquivo a partir da raiz do projeto"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "Conteúdo completo do arquivo - NUNCA use placeholders ou truncamento"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": ["create", "modify", "delete", "move"],
+                  "description": "Ação a ser executada no arquivo"
+                },
+                "from": {
+                  "type": "string",
+                  "description": "Caminho de origem para operações de movimentação"
+                },
+                "to": {
+                  "type": "string", 
+                  "description": "Caminho de destino para operações de movimentação"
+                }
+              },
+              "required": ["path", "action"]
+            }
+          }
+        },
+        "required": ["id", "title", "commit", "files"]
+      }
+    },
+    {
+      "name": "define_backend_service",
+      "description": "Define um serviço backend Encore.ts com estrutura adequada",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "serviceName": {
+            "type": "string",
+            "description": "Nome do serviço backend"
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Nome único do endpoint"
+                },
+                "method": {
+                  "type": "string",
+                  "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+                  "description": "Método HTTP"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Caminho da API com parâmetros (ex.: '/users/:id')"
+                },
+                "expose": {
+                  "type": "boolean",
+                  "description": "Se o endpoint é acessível publicamente"
+                },
+                "auth": {
+                  "type": "boolean",
+                  "description": "Se o endpoint requer autenticação"
+                }
+              },
+              "required": ["name", "method", "path"]
+            }
+          },
+          "database": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Nome do banco de dados"
+              },
+              "tables": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Nome da tabela"
+                    },
+                    "columns": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "constraints": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["name", "type"]
+                      }
+                    }
+                  },
+                  "required": ["name", "columns"]
+                }
+              }
+            }
+          }
+        },
+        "required": ["serviceName"]
+      }
+    },
+    {
+      "name": "create_react_component",
+      "description": "Cria um componente React com TypeScript e Tailwind CSS",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "componentName": {
+            "type": "string",
+            "description": "Nome do componente React"
+          },
+          "path": {
+            "type": "string",
+            "description": "Caminho onde o componente deve ser criado"
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "optional": {
+                  "type": "boolean"
+                }
+              },
+              "required": ["name", "type"]
+            }
+          },
+          "useBackend": {
+            "type": "boolean",
+            "description": "Se o componente usa chamadas de API do backend"
+          },
+          "styling": {
+            "type": "object",
+            "properties": {
+              "theme": {
+                "type": "string",
+                "enum": ["light", "dark", "system"],
+                "description": "Tema do componente"
+              },
+              "responsive": {
+                "type": "boolean",
+                "description": "Se o componente é responsivo"
+              },
+              "animations": {
+                "type": "boolean",
+                "description": "Se deve incluir animações sutis"
+              }
+            }
+          }
+        },
+        "required": ["componentName", "path"]
+      }
+    },
+    {
+      "name": "setup_authentication",
+      "description": "Configura autenticação usando Clerk para backend e frontend",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": ["clerk"],
+            "description": "Provedor de autenticação"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["sign-in", "sign-up", "user-profile", "session-management"]
+            }
+          },
+          "protectedRoutes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Endpoints da API que requerem autenticação"
+          }
+        },
+        "required": ["provider"]
+      }
+    },
+    {
+      "name": "create_database_migration",
+      "description": "Cria um novo arquivo de migração SQL para banco de dados Encore.ts",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "migrationName": {
+            "type": "string",
+            "description": "Nome descritivo para a migração"
+          },
+          "version": {
+            "type": "integer",
+            "description": "Número da versão da migração"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["CREATE_TABLE", "ALTER_TABLE", "DROP_TABLE", "CREATE_INDEX", "DROP_INDEX"]
+                },
+                "sql": {
+                  "type": "string",
+                  "description": "SQL bruto para a operação"
+                }
+              },
+              "required": ["type", "sql"]
+            }
+          }
+        },
+        "required": ["migrationName", "version", "operations"]
+      }
+    },
+    {
+      "name": "setup_streaming_api",
+      "description": "Configura APIs de streaming para comunicação em tempo real",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "streamType": {
+            "type": "string",
+            "enum": ["streamIn", "streamOut", "streamInOut"],
+            "description": "Tipo de API de streaming"
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "Caminho do endpoint de stream"
+          },
+          "messageTypes": {
+            "type": "object",
+            "properties": {
+              "handshake": {
+                "type": "object",
+                "description": "Esquema de mensagem de handshake"
+              },
+              "incoming": {
+                "type": "object",
+                "description": "Esquema de mensagem de entrada"
+              },
+              "outgoing": {
+                "type": "object",
+                "description": "Esquema de mensagem de saída"
+              }
+            }
+          }
+        },
+        "required": ["streamType", "endpoint"]
+      }
+    },
+    {
+      "name": "configure_secrets",
+      "description": "Configura gerenciamento de segredos para chaves de API e dados sensíveis",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "secrets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Nome do segredo (ex.: 'OpenAIKey', 'DatabaseURL')"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Descrição do que o segredo é usado"
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "Se este segredo é necessário para o funcionamento do app"
+                }
+              },
+              "required": ["name", "description"]
+            }
+          }
+        },
+        "required": ["secrets"]
+      }
+    },
+    {
+      "name": "setup_object_storage",
+      "description": "Configura buckets de armazenamento de objetos para uploads de arquivos",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "buckets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Nome do bucket"
+                },
+                "public": {
+                  "type": "boolean",
+                  "description": "Se o conteúdo do bucket é acessível publicamente"
+                },
+                "versioned": {
+                  "type": "boolean",
+                  "description": "Se deve habilitar versionamento de objetos"
+                },
+                "allowedFileTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Tipos MIME de arquivos permitidos"
+                }
+              },
+              "required": ["name"]
+            }
+          }
+        },
+        "required": ["buckets"]
+      }
+    },
+    {
+      "name": "setup_pubsub",
+      "description": "Configura tópicos e assinaturas Pub/Sub para arquitetura orientada a eventos",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "topics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Nome do tópico"
+                },
+                "eventSchema": {
+                  "type": "object",
+                  "description": "Interface TypeScript para dados de evento"
+                },
+                "deliveryGuarantee": {
+                  "type": "string",
+                  "enum": ["at-least-once", "exactly-once"],
+                  "description": "Garantia de entrega de mensagens"
+                }
+              },
+              "required": ["name", "eventSchema"]
+            }
+          },
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Nome da assinatura"
+                },
+                "topicName": {
+                  "type": "string",
+                  "description": "Nome do tópico para assinar"
+                },
+                "handler": {
+                  "type": "string",
+                  "description": "Descrição da função handler"
+                }
+              },
+              "required": ["name", "topicName", "handler"]
+            }
+          }
+        },
+        "required": ["topics"]
+      }
+    },
+    {
+      "name": "create_test_suite",
+      "description": "Cria suítes de teste usando Vitest para backend e frontend",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "testType": {
+            "type": "string",
+            "enum": ["backend", "frontend", "integration"],
+            "description": "Tipo de testes a criar"
+          },
+          "testFiles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "Caminho do arquivo de teste"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "O que o arquivo de teste cobre"
+                },
+                "testCases": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["name"]
+                  }
+                }
+              },
+              "required": ["path", "testCases"]
+            }
+          }
+        },
+        "required": ["testType", "testFiles"]
+      }
+    }
+  ],
+  "guidelines": {
+    "code_quality": [
+      "Use 2 espaços para indentação",
+      "Divida funcionalidades em módulos menores e focados",
+      "Mantenha arquivos o menor possível",
+      "Use tipagem TypeScript adequada em todo o código",
+      "Siga convenções de nomenclatura consistentes",
+      "Inclua tratamento de erros abrangente",
+      "Adicione comentários significativos para lógica complexa"
+    ],
+    "backend_requirements": [
+      "Todo código backend deve usar Encore.ts",
+      "Armazene dados usando SQL Database ou Object Storage",
+      "Nunca armazene dados em memória ou arquivos locais",
+      "Todos os serviços vão na pasta backend/",
+      "Cada endpoint da API em seu próprio arquivo",
+      "Nomes únicos de endpoints em toda a aplicação",
+      "Use template literals para consultas de banco de dados",
+      "Documente todos os endpoints da API com comentários"
+    ],
+    "frontend_requirements": [
+      "Use React com TypeScript e Tailwind CSS",
+      "Importe cliente backend como: import backend from '~backend/client'",
+      "Use componentes shadcn/ui quando apropriado",
+      "Crie designs responsivos para todos os tamanhos de tela",
+      "Inclua animações e interações sutis",
+      "Use tratamento de erros adequado com logs console.error",
+      "Divida componentes em módulos menores e reutilizáveis",
+      "Código frontend vai na pasta frontend/ (sem subpasta src/)"
+    ],
+    "file_handling": [
+      "Sempre forneça conteúdo COMPLETO do arquivo",
+      "NUNCA use placeholders ou truncamento",
+      "Apenas gere arquivos que precisam de mudanças",
+      "Use leapFile para criações/modificações",
+      "Use leapDeleteFile para exclusões",
+      "Use leapMoveFile para renomeações/movimentações",
+      "Exclua arquivos gerados automaticamente (package.json, etc.)"
+    ],
+    "security": [
+      "Use segredos para todos os dados sensíveis",
+      "Implemente autenticação adequada quando solicitado",
+      "Valide todas as entradas do usuário",
+      "Use configurações CORS adequadas",
+      "Siga melhores práticas de segurança para APIs"
+    ]
+  }
+}
