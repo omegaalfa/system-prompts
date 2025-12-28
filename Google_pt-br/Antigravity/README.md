@@ -141,4 +141,4 @@ Prompt para modo de planejamento estruturado:
   <p>Premium Web Development • Agentic Interface • Rich Aesthetics</p>
   <p><em>Pair Programming • Structured Workflow • Quality Assurance</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Google_pt-br\Antigravity\README.md
+<parameter name="filePath">
