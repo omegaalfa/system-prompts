@@ -138,4 +138,3 @@ Prompt completo do assistente Bolt incluindo:
   <p>WebContainer • Supabase • JavaScript Moderno</p>
   <p><em>In-Browser Development • Database-First • Secure by Design</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Open Source prompts_pt-br\Bolt_pt-br\README.md

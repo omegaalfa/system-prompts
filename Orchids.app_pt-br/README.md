@@ -134,4 +134,3 @@ Prompt do agente de decisão incluindo:
   <p>Design elegante e implementação técnica em Next.js</p>
   <p><em>Next.js 15 • Shadcn/UI • TypeScript • Desenvolvimento Eficiente</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Orchids.app_pt-br\README.md

@@ -132,4 +132,3 @@ Prompt completo do sistema incluindo:
   <p>Navegação inteligente e resolução completa de tarefas</p>
   <p><em>Web Browser • Intelligent Search • Content Analysis • Security First</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Comet Assistant_pt-br\README.md

@@ -144,4 +144,3 @@ Prompt do sistema detalhado incluindo:
   <p>Terminal Agent • Git Sandbox • Code Quality • Secure Development</p>
   <p><em>Open Source • AI-Powered • Terminal-Based • Quality-First</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Open Source prompts_pt-br\Codex CLI_pt-br\README.md

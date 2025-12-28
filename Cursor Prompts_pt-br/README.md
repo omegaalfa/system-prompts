@@ -143,4 +143,3 @@ Definições completas das ferramentas:
   <p>Busca inteligente e edição precisa de código</p>
   <p><em>Codebase Search • Semantic Intelligence • Code Editing • Development Tools</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Cursor Prompts_pt-br\README.md

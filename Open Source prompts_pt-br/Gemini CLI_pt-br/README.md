@@ -137,4 +137,3 @@ Prompt completo do sistema incluindo:
   <p>Code Quality • Modern Frameworks • Automated Testing</p>
   <p><em>Google-Powered • Convention-Driven • Quality-First • Full-Stack</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Open Source prompts_pt-br\Gemini CLI_pt-br\README.md

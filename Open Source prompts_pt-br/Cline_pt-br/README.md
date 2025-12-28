@@ -144,4 +144,3 @@ Prompt completo do assistente Cline incluindo:
   <p>Terminal • Code Editing • Web Automation • System Control</p>
   <p><em>Full-Stack Development • Automated Testing • Code Analysis</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Open Source prompts_pt-br\Cline_pt-br\README.md

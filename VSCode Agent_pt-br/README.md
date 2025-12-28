@@ -122,4 +122,3 @@ Prompt principal do sistema (389 linhas) contendo:
   <p>Desenvolvimento inteligente com o poder do GitHub Copilot</p>
   <p><em>Agente Automatizado • Validação Integrada • Desenvolvimento Acelerado</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\VSCode Agent_pt-br\README.md

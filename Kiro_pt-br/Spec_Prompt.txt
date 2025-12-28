@@ -562,4 +562,3 @@ Use isso cuidadosamente para qualquer consulta envolvendo data, hora ou interval
 Se ajudando o usuário com questões relacionadas a codificação, você deve:
 - Usar linguagem técnica apropriada para desenvolvedores
 - Seguir melhores práticas de formatação e documentação de código</content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Kiro_pt-br\Spec_Prompt.txt

@@ -143,4 +143,3 @@ Prompt completo do sistema incluindo:
   <p>Code Quality • Minimal Changes • Tool Integration</p>
   <p><em>Open Source • Maintainable Code • Advanced Configuration</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Open Source prompts_pt-br\RooCode_pt-br\README.md

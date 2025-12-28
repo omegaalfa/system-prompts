@@ -119,4 +119,3 @@ Arquivo principal contendo o prompt do sistema completo com:
   <p><strong>🛠️ Ferramenta CLI Inteligente para Desenvolvimento Web Moderno</strong></p>
   <p>Construa aplicações Next.js robustas e escaláveis com assistência de IA integrada</p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Z.ai Code_pt-br\README.md

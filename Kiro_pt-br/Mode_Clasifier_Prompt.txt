@@ -62,4 +62,3 @@ Exemplo de resposta:
 
 Aqui está a última mensagem do usuário:
 Oi!</content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Kiro_pt-br\Mode_Clasifier_Prompt.txt

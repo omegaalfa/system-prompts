@@ -117,4 +117,3 @@
   <p>Planejamento estratégico e implementação técnica em harmonia</p>
   <p><em>Plan Mode • Phase Mode • Desenvolvimento Orientado por Qualidade</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Traycer AI_pt-br\README.md

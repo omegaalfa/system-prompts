@@ -126,4 +126,3 @@ Definições completas das ferramentas disponíveis:
   <p>Revolucionando o desenvolvimento de software através do AI Flow</p>
   <p><em>Desenvolvido pela equipe de engenharia da Windsurf, Vale do Silício</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Windsurf_pt-br\README.md

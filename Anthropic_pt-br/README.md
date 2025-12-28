@@ -133,4 +133,3 @@ Prompt do modelo de linguagem avançado:
   <p>Desenvolvimento responsável e inteligência conversacional</p>
   <p><em>Claude Code • Sonnet 4.5 • Security First • Ethical AI</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Anthropic_pt-br\README.md

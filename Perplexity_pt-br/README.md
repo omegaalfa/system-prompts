@@ -155,4 +155,3 @@
   <p>Precisão, estrutura e expertise em cada resposta</p>
   <p><em>Busca Inteligente • Formatação Estruturada • Conhecimento Especializado</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Perplexity_pt-br\README.md

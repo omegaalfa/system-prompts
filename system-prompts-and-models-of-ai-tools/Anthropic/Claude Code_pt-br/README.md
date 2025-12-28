@@ -131,4 +131,3 @@ Configuração das ferramentas disponíveis:
   <p>Software Engineering • Security First • Concise Interface</p>
   <p><em>Defensive Security • Direct Assistance • Integrated Tools</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\system-prompts-and-models-of-ai-tools\Anthropic\Claude Code_pt-br\README.md

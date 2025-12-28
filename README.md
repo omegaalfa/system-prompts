@@ -316,4 +316,3 @@ Este projeto está licenciado sob a **GNU General Public License v3.0** - veja o
 ---
 
 **⚠️ Lembre-se:** Esta é uma tradução não oficial. O texto original em inglês prevalece para fins legais.</content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\README.md

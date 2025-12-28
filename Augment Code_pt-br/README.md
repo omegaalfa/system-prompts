@@ -144,4 +144,3 @@
   <p>Desenvolvimento inteligente com modelos Claude e GPT</p>
   <p><em>Claude Sonnet 4 • GPT-5 • Code Editing • Task Management</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Augment Code_pt-br\README.md

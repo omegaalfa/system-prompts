@@ -128,4 +128,3 @@ Prompt completo do sistema incluindo:
   <p>Proton-Powered • Privacy-First • Multi-Model Intelligence</p>
   <p><em>Zero-Access Encryption • Educational Content • Proton Ecosystem</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Open Source prompts_pt-br\Lumo_pt-br\README.md

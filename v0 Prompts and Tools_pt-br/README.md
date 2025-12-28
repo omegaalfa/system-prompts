@@ -119,4 +119,3 @@ Definições completas das ferramentas disponíveis (326 linhas):
   <p>Construa aplicações React e Next.js com velocidade e qualidade excepcionais</p>
   <p><em>Code Projects • Edição Incremental • Deploy Automático</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\v0 Prompts and Tools_pt-br\README.md

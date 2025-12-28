@@ -138,4 +138,3 @@ Prompt do modo de desenvolvimento incluindo:
   <p>Conversa inteligente e desenvolvimento técnico de qualidade</p>
   <p><em>Chat Mode • Craft Mode • Multi-Language • Code Quality</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\CodeBuddy Prompts_pt-br\README.md

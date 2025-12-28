@@ -154,4 +154,3 @@ Ciclo operacional principal:
   <p>Execução autônoma e versátil em ambiente sandbox</p>
   <p><em>Sandbox Linux • Multi-Linguagem • Desenvolvimento Web • Análise de Dados</em></p>
 </div></content>
-<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Manus Agent Tools & Prompt_pt-br\README.md
