@@ -163,3 +163,4 @@ export const enum CarType {
   <p>React • TypeScript • Tailwind CSS • Modern Practices</p>
   <p><em>High-Quality Code • Beautiful Design • Type Safety</em></p>
 </div></content>
+<parameter name="filePath">\\wsl$\Ubuntu\home\omgaalfa\php-projetos\applications\system-prompts-and-models-of-ai-tools\Google_pt-br\Gemini\README.md
